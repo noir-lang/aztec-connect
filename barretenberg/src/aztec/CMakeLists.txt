@@ -4,6 +4,7 @@ add_compile_options(-Werror -Wall -Wextra -Wconversion -Wsign-conversion -Wno-de
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_compile_options(-Wno-unguarded-availability-new -Wno-c99-extensions -fconstexpr-steps=100000000)
+
     if(MEMORY_CHECKS)
         message(STATUS "Compiling with memory checks.")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
@@ -33,6 +34,7 @@ add_subdirectory(crypto)
 add_subdirectory(polynomials)
 add_subdirectory(plonk)
 add_subdirectory(stdlib)
+add_subdirectory(dsl)
 add_subdirectory(rollup)
 
 if(BENCHMARKS)
@@ -67,6 +69,7 @@ if(WASM)
         $<TARGET_OBJECTS:rollup_proofs_account_objects>
         $<TARGET_OBJECTS:rollup_proofs_join_split_objects>
         $<TARGET_OBJECTS:rollup_proofs_claim_objects>
+        $<TARGET_OBJECTS:dsl_objects>
     )
 
     target_link_options(
@@ -74,5 +77,4 @@ if(WASM)
         PRIVATE
         -nostartfiles -Wl,--no-entry -Wl,--export-dynamic -Wl,--import-memory -Wl,--allow-undefined -Wl,--stack-first -Wl,-z,stack-size=8388608
     )
-
 endif()

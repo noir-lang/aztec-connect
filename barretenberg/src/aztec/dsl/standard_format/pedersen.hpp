@@ -31,7 +31,7 @@ void create_pedersen_constraint(waffle::TurboComposer& composer, const PedersenC
         field_t scalar_as_field = field_t::from_witness_index(&composer, scalar);
         scalars.push_back(scalar_as_field);
     }
-    auto point = pedersen::encrypt(scalars, 0, true);
+    auto point = pedersen::commit(scalars);
 
     composer.copy_from_to(point.x.witness_index, input.result_x);
     composer.copy_from_to(point.y.witness_index, input.result_y);

@@ -1,3 +1,4 @@
+#pragma once
 #include "../hashers/hashers.hpp"
 #include <array>
 #include <string>

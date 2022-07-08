@@ -28,13 +28,14 @@ void create_merkle_insert_constraint(waffle::TurboComposer& composer, const Merk
 {
     /// Convert leaves from a witness index into a byte array.
     field_t old_leaf = field_t::from_witness_index(&composer, input.old_leaf);
-    byte_array old_leaf_arr(old_leaf);
+    // byte_array old_leaf_arr(old_leaf);
     field_t new_leaf = field_t::from_witness_index(&composer, input.new_leaf);
-    byte_array new_leaf_arr(new_leaf);
+    // byte_array new_leaf_arr(new_leaf);
 
     /// Convert index from a witness index into a byte array
     field_t index_field = field_t::from_witness_index(&composer, input.index);
-    byte_array index_arr(index_field);
+    auto index_arr_bits = index_field.decompose_into_bits();
+    // byte_array index_arr(index_field);
 
     /// Convert roots into field_t
     field_t old_root = field_t::from_witness_index(&composer, input.old_root);
@@ -51,7 +52,15 @@ void create_merkle_insert_constraint(waffle::TurboComposer& composer, const Merk
         hash_path.push_back(std::make_pair(left, right));
     }
 
-    update_membership(composer, new_root, hash_path, new_leaf_arr, old_root, hash_path, old_leaf_arr, index_arr);
+    // void update_membership(field_t<Composer> const& new_root,
+    //                        field_t<Composer> const& new_value,
+    //                        field_t<Composer> const& old_root,
+    //                        hash_path<Composer> const& old_hashes,
+    //                        field_t<Composer> const& old_value,
+    //                        bit_vector<Composer> const& index,
+    //                        std::string const& msg = "update_membership")
+
+    update_membership(new_root, new_leaf, old_root, hash_path, old_leaf, index_arr_bits);
 }
 
 template <typename B> inline void read(B& buf, MerkleInsertConstraint& constraint)

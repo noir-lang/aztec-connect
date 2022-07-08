@@ -6,6 +6,11 @@ namespace plonk {
 namespace stdlib {
 namespace ecdsa {
 
+template <typename Composer> struct signature {
+    stdlib::byte_array<Composer> r;
+    stdlib::byte_array<Composer> s;
+};
+
 template <typename Composer, typename Fq, typename Fr, typename G1>
 bool_t<Composer> verify_signature(const stdlib::byte_array<Composer>& message,
                                   const G1& public_key,

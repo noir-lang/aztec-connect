@@ -46,7 +46,7 @@ template <typename ComposerContext> class pedersen {
 
     static void validate_wnaf_is_in_field(ComposerContext* ctx, const std::vector<uint32_t>& accumulator);
 
-  private:
+    // private: // we need to be able to commit, not compress
     static point commit(const std::vector<field_t>& inputs, const size_t hash_index = 0);
 };
 

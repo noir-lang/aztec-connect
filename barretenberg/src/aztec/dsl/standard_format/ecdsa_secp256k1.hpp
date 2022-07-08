@@ -1,10 +1,9 @@
 #pragma once
-
 #include <common/serialize.hpp>
 #include <common/assert.hpp>
 #include <plonk/composer/composer_base.hpp>
 #include <plonk/composer/turbo_composer.hpp>
-#include <stdlib/encryption/ecdsa/ecdsa.hpp>
+#include <stdlib/encryption/ecdsa/ecdsa_impl.hpp>
 #include <crypto/ecdsa/ecdsa.hpp>
 #include <stdlib/types/turbo.hpp>
 #include <stdlib/primitives/packed_byte_array/packed_byte_array.hpp>

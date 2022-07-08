@@ -4,6 +4,7 @@
 #include <plonk/composer/turbo_composer.hpp>
 #include <stdlib/types/turbo.hpp>
 #include <stdlib/merkle_tree/hash.hpp>
+#include <stdlib/hash/blake2s/blake2s.hpp>
 
 using namespace plonk::stdlib::types::turbo;
 using namespace barretenberg;
@@ -56,7 +57,9 @@ void create_hash_to_field_constraints(waffle::TurboComposer& composer, const Has
 
     // Hash To Field using blake2s.
     // Note: It does not need to be blake2s in the future
-    field_t out = hash_to_field<waffle::TurboComposer>(arr);
+
+    byte_array_ct out_bytes = plonk::stdlib::blake2s<waffle::TurboComposer>(arr);
+    field_t out(out_bytes);
 
     field_t normalised_out = out.normalize();
 

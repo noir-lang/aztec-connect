@@ -82,7 +82,7 @@ TurboComposer create_circuit(const standard_format& constraint_system)
 
     // Add range constraint
     for (const auto& constraint : constraint_system.range_constraints) {
-        composer.create_range_constraint(constraint.witness, constraint.num_bits);
+        composer.decompose_into_base4_accumulators(constraint.witness, constraint.num_bits);
     }
 
     // Add sha256 constraints
@@ -167,7 +167,7 @@ TurboComposer create_circuit(const standard_format& constraint_system,
 
     // Add range constraint
     for (const auto& constraint : constraint_system.range_constraints) {
-        composer.create_range_constraint(constraint.witness, constraint.num_bits);
+        composer.decompose_into_base4_accumulators(constraint.witness, constraint.num_bits);
     }
 
     // Add sha256 constraints
@@ -256,7 +256,7 @@ TurboComposer create_circuit_with_witness(const standard_format& constraint_syst
 
     // Add range constraint
     for (const auto& constraint : constraint_system.range_constraints) {
-        composer.create_range_constraint(constraint.witness, constraint.num_bits);
+        composer.decompose_into_base4_accumulators(constraint.witness, constraint.num_bits);
     }
 
     // Add sha256 constraints
@@ -342,7 +342,7 @@ TurboComposer create_circuit_with_witness(const standard_format& constraint_syst
 
     // Add range constraint
     for (const auto& constraint : constraint_system.range_constraints) {
-        composer.create_range_constraint(constraint.witness, constraint.num_bits);
+        composer.decompose_into_base4_accumulators(constraint.witness, constraint.num_bits);
     }
 
     // Add sha256 constraints

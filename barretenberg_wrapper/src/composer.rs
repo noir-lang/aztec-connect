@@ -1,4 +1,4 @@
-use crate::bindings::dsl_standard_format;
+use crate::*;
 
 /// # Safety
 /// pippenger must point to a valid Pippenger object
@@ -8,7 +8,7 @@ pub unsafe fn smart_contract(
     cs_ptr: &[u8],
     output_buf: *mut *mut u8,
 ) -> u32 {
-    dsl_standard_format::composer__smart_contract(
+    composer__smart_contract(
         pippenger,
         g2_ptr.as_ptr() as *const u8,
         cs_ptr.as_ptr() as *const u8,
@@ -19,7 +19,7 @@ pub unsafe fn smart_contract(
 /// # Safety
 /// cs_prt must point to a valid constraints system structure of type standard_format
 pub unsafe fn get_circuit_size(cs_prt: *const u8) -> u32 {
-    dsl_standard_format::composer__get_circuit_size(cs_prt)
+    composer__get_circuit_size(cs_prt)
     // TODO test with a circuit of size 2^19 cf: https://github.com/noir-lang/noir/issues/12
 }
 
@@ -32,7 +32,7 @@ pub unsafe fn create_proof(
     witness_ptr: &[u8],
     proof_data_ptr: *mut *mut u8,
 ) -> u64 {
-    dsl_standard_format::composer__new_proof(
+    composer__new_proof(
         pippenger,
         g2_ptr.as_ptr() as *const u8,
         cs_ptr.as_ptr() as *const u8,
@@ -54,7 +54,7 @@ pub unsafe fn verify(
     let proof_ptr = proof.as_ptr() as *const u8;
     let verified;
     if !public_inputs.is_empty() {
-        verified = dsl_standard_format::composer__verify_proof_with_public_inputs(
+        verified = composer__verify_proof_with_public_inputs(
             pippenger,
             g2_ptr.as_ptr() as *const u8,
             cs_ptr.as_ptr() as *const u8,
@@ -63,7 +63,7 @@ pub unsafe fn verify(
             proof.len() as u32,
         );
     } else {
-        verified = dsl_standard_format::composer__verify_proof(
+        verified = composer__verify_proof(
             pippenger,
             g2_ptr.as_ptr() as *const u8,
             cs_ptr.as_ptr() as *const u8,

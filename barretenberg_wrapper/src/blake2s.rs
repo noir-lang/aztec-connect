@@ -1,12 +1,11 @@
-extern crate hex;
-
-use crate::bindings::blake2s;
+use crate::*;
+use hex;
 
 pub fn hash_to_field(input: &[u8]) -> [u8; 32] {
     let mut r = [0_u8; 32];
     let data = input.as_ptr() as *const u8;
     unsafe {
-        blake2s::blake2s_to_field(data, input.len() as u64, r.as_mut_ptr());
+        blake2s_to_field(data, input.len() as u64, r.as_mut_ptr());
     }
     r
 }

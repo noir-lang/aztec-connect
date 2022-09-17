@@ -1,11 +1,15 @@
-use crate::bindings::pedersen;
+use crate::*;
 use std::convert::TryInto;
-
+// TODO: Behaviour has changed since the old barretenberg
+// TODO: so test vectors wont work.
+//
+// TODO: We should check what we need
 pub fn compress_native(left: &[u8; 32], right: &[u8; 32]) -> [u8; 32] {
+    // unsafe { pedersen__init() };
     let mut result = [0_u8; 32];
 
     unsafe {
-        pedersen::pedersen_compress_fields(
+        pedersen__compress_fields(
             left.as_ptr() as *const u8,
             right.as_ptr() as *const u8,
             result.as_mut_ptr(),
@@ -15,6 +19,7 @@ pub fn compress_native(left: &[u8; 32], right: &[u8; 32]) -> [u8; 32] {
 }
 
 pub fn compress_many(inputs: &[[u8; 32]]) -> [u8; 32] {
+    // unsafe { pedersen__init() };
     //convert inputs into one buffer: length + data
     let mut buffer = Vec::new();
     let witness_len = inputs.len() as u32;
@@ -25,7 +30,7 @@ pub fn compress_many(inputs: &[[u8; 32]]) -> [u8; 32] {
 
     let mut result = [0_u8; 32];
     unsafe {
-        pedersen::pedersen_compress(buffer.as_ptr() as *const u8, result.as_mut_ptr());
+        pedersen__compress(buffer.as_ptr() as *const u8, result.as_mut_ptr());
     }
     result
 }
@@ -40,7 +45,7 @@ pub fn encrypt(inputs_buffer: &[[u8; 32]]) -> ([u8; 32], [u8; 32]) {
     }
 
     unsafe {
-        pedersen::pedersen_encrypt(buffer.as_ptr() as *const u8, result.as_mut_ptr());
+        pedersen__compress(buffer.as_ptr() as *const u8, result.as_mut_ptr());
     }
     let s: [u8; 32] = (result[0..32]).try_into().unwrap();
     let e: [u8; 32] = (result[32..64]).try_into().unwrap();

@@ -1,4 +1,4 @@
-use crate::bindings::schnorr;
+use crate::*;
 use std::convert::TryInto;
 pub fn fixed_base(input: &[u8; 32]) -> ([u8; 32], [u8; 32]) {
     let result = construct_public_key(input);
@@ -11,7 +11,7 @@ pub fn construct_public_key(private_key: &[u8; 32]) -> [u8; 64] {
     let mut result = [0_u8; 64];
     unsafe {
         let data = private_key.as_ptr() as *const u8;
-        schnorr::compute_public_key(data, result.as_mut_ptr());
+        compute_public_key(data, result.as_mut_ptr());
     }
     result
 }
@@ -20,7 +20,7 @@ pub fn construct_signature(message: &[u8], private_key: [u8; 32]) -> ([u8; 32], 
     let mut s = [0_u8; 32];
     let mut e = [0_u8; 32];
     unsafe {
-        schnorr::construct_signature(
+        crate::construct_signature(
             message.as_ptr() as *const u8,
             message.len() as u64,
             private_key.as_ptr() as *const u8,
@@ -41,7 +41,7 @@ pub fn verify_signature(
 ) -> bool {
     let r;
     unsafe {
-        r = schnorr::verify_signature(
+        r = crate::verify_signature(
             message.as_ptr() as *const u8,
             message.len() as u64,
             pub_key.as_ptr() as *const u8,
@@ -77,25 +77,17 @@ mod tests {
         // First case should pass, standard procedure for Schnorr
         let private_key = [2; 32];
         let message = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-        dbg!("1111111");
         let public_key = construct_public_key(&private_key);
-        dbg!("2222222222");
         let (sig_s, sig_e) = construct_signature(&message, private_key);
-        dbg!("33333333333");
         let result = verify_signature(public_key, sig_s, sig_e, &message);
-        dbg!("44444444444444");
         assert!(result);
 
         // Should fail, since the messages are different
         let private_key = [2; 32];
         let message = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-        dbg!("5");
         let public_key = construct_public_key(&private_key);
-        dbg!("6");
         let (sig_s, sig_e) = construct_signature(&message, private_key);
-        dbg!("7");
         let result = verify_signature(public_key, sig_s, sig_e, &[0, 2]);
-        dbg!("8888888");
         assert!(!result);
 
         // Should fail, since the signature is not valid
@@ -105,7 +97,6 @@ mod tests {
         let sig_e = [1; 32];
         let public_key = construct_public_key(&private_key);
         let result = verify_signature(public_key, sig_s, sig_e, &message);
-        dbg!("10");
         assert!(!result);
 
         // Should fail, since the public key does not match
@@ -115,7 +106,6 @@ mod tests {
         let public_key_b = construct_public_key(&private_key_b);
         let (siga_s, siga_e) = construct_signature(&message, private_key_a);
         let result = verify_signature(public_key_b, siga_s, siga_e, &message);
-        dbg!("11");
         assert!(!result);
 
         // Test the first case again, to check if memory is being freed and overwritten properly
@@ -125,7 +115,6 @@ mod tests {
         let public_key = construct_public_key(&private_key);
         let (sig_s, sig_e) = construct_signature(&message, private_key);
         let result = verify_signature(public_key, sig_s, sig_e, &message);
-        dbg!("12");
         assert!(result);
     }
 }

@@ -98,6 +98,7 @@ fn main() {
         .cxxflag("-fPIE")
         .env("NUM_JOBS", num_cpus::get().to_string())
         .define("TOOLCHAIN", toolchain)
+        .always_configure(false)
         .build();
 
     // Manually link all of the libraries

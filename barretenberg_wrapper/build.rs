@@ -154,6 +154,54 @@ fn main() {
     );
     println!("cargo:rustc-link-lib=static=dsl");
 
+    println!(
+        "cargo:rustc-link-search={}/build/src/aztec/plonk/",
+        dst.display()
+    );
+    println!("cargo:rustc-link-lib=static=plonk");
+    println!(
+        "cargo:rustc-link-search={}/build/src/aztec/polynomials/",
+        dst.display()
+    );
+    println!("cargo:rustc-link-lib=static=polynomials");
+    println!(
+        "cargo:rustc-link-search={}/build/src/aztec/srs/",
+        dst.display()
+    );
+    println!("cargo:rustc-link-lib=static=srs");
+    println!(
+        "cargo:rustc-link-search={}/build/src/aztec/numeric/",
+        dst.display()
+    );
+    println!("cargo:rustc-link-lib=static=numeric");
+
+    println!(
+        "cargo:rustc-link-search={}/build/src/aztec/stdlib/primitives",
+        dst.display()
+    );
+    println!(
+        "cargo:rustc-link-search={}/build/src/aztec/stdlib/hash/sha256",
+        dst.display()
+    );
+    println!(
+        "cargo:rustc-link-search={}/build/src/aztec/stdlib/hash/blake2s",
+        dst.display()
+    );
+    println!(
+        "cargo:rustc-link-search={}/build/src/aztec/stdlib/encryption/schnorr",
+        dst.display()
+    );
+    println!(
+        "cargo:rustc-link-search={}/build/src/aztec/stdlib/hash/pedersen",
+        dst.display()
+    );
+
+    println!("cargo:rustc-link-lib=static=stdlib_primitives");
+    println!("cargo:rustc-link-lib=static=stdlib_sha256");
+    println!("cargo:rustc-link-lib=static=stdlib_blake2s");
+    println!("cargo:rustc-link-lib=static=stdlib_schnorr");
+    println!("cargo:rustc-link-lib=static=stdlib_pedersen");
+
     // Generate bindings from a header file and place them in a bindings.rs file
 
     let bindings = bindgen::Builder::default()

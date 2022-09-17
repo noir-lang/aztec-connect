@@ -38,7 +38,6 @@ struct standard_format {
     // A standard plonk arithmetic constraint, as defined in the poly_triple struct, consists of selector values
     // for q_M,q_L,q_R,q_O,q_C and indices of three variables taking the role of left, right and output wire
     std::vector<poly_triple> constraints;
-    std::vector<MerkleInsertConstraint> merkle_insert_constraints;
 };
 
 void read_witness(TurboComposer& composer, std::vector<barretenberg::fr> witness)
@@ -93,11 +92,6 @@ TurboComposer create_circuit(const standard_format& constraint_system)
     // Add merkle membership constraints
     for (const auto& constraint : constraint_system.merkle_membership_constraints) {
         create_merkle_check_membership_constraint(composer, constraint);
-    }
-
-    // Add merkle insert constraints
-    for (const auto& constraint : constraint_system.merkle_insert_constraints) {
-        create_merkle_insert_constraint(composer, constraint);
     }
 
     // Add schnorr constraints
@@ -178,11 +172,6 @@ TurboComposer create_circuit(const standard_format& constraint_system,
     // Add merkle membership constraints
     for (const auto& constraint : constraint_system.merkle_membership_constraints) {
         create_merkle_check_membership_constraint(composer, constraint);
-    }
-
-    // Add merkle insert constraints
-    for (const auto& constraint : constraint_system.merkle_insert_constraints) {
-        create_merkle_insert_constraint(composer, constraint);
     }
 
     // Add schnorr constraints
@@ -269,11 +258,6 @@ TurboComposer create_circuit_with_witness(const standard_format& constraint_syst
         create_merkle_check_membership_constraint(composer, constraint);
     }
 
-    // Add merkle insert constraints
-    for (const auto& constraint : constraint_system.merkle_insert_constraints) {
-        create_merkle_insert_constraint(composer, constraint);
-    }
-
     // Add schnorr constraints
     for (const auto& constraint : constraint_system.schnorr_constraints) {
         create_schnorr_verify_constraints(composer, constraint);
@@ -355,11 +339,6 @@ TurboComposer create_circuit_with_witness(const standard_format& constraint_syst
         create_merkle_check_membership_constraint(composer, constraint);
     }
 
-    // Add merkle insert constraints
-    for (const auto& constraint : constraint_system.merkle_insert_constraints) {
-        create_merkle_insert_constraint(composer, constraint);
-    }
-
     // Add schnorr constraints
     for (const auto& constraint : constraint_system.schnorr_constraints) {
         create_schnorr_verify_constraints(composer, constraint);
@@ -403,7 +382,6 @@ template <typename B> inline void read(B& buf, standard_format& data)
     read(buf, data.range_constraints);
     read(buf, data.sha256_constraints);
     read(buf, data.merkle_membership_constraints);
-    read(buf, data.merkle_insert_constraints);
     read(buf, data.schnorr_constraints);
     read(buf, data.ecdsa_constraints);
     read(buf, data.blake2s_constraints);
@@ -422,7 +400,6 @@ template <typename B> inline void write(B& buf, standard_format const& data)
     write(buf, data.range_constraints);
     write(buf, data.sha256_constraints);
     write(buf, data.merkle_membership_constraints);
-    write(buf, data.merkle_insert_constraints);
     write(buf, data.schnorr_constraints);
     write(buf, data.ecdsa_constraints);
     write(buf, data.blake2s_constraints);
@@ -442,7 +419,6 @@ inline bool operator==(standard_format const& lhs, standard_format const& rhs)
         lhs.range_constraints == rhs.range_constraints &&
         lhs.sha256_constraints == rhs.sha256_constraints &&
         lhs.merkle_membership_constraints == rhs.merkle_membership_constraints &&
-        lhs.merkle_insert_constraints == rhs.merkle_insert_constraints &&
         lhs.schnorr_constraints == rhs.schnorr_constraints &&
         lhs.ecdsa_constraints == rhs.ecdsa_constraints &&
         lhs.blake2s_constraints == rhs.blake2s_constraints &&

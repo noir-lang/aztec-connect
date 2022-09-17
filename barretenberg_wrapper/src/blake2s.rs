@@ -1,5 +1,4 @@
 use crate::*;
-use hex;
 
 pub fn hash_to_field(input: &[u8]) -> [u8; 32] {
     let mut r = [0_u8; 32];
@@ -13,6 +12,7 @@ pub fn hash_to_field(input: &[u8]) -> [u8; 32] {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use hex;
 
     #[test]
     fn black2s() {

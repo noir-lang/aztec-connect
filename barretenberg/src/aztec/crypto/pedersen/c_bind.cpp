@@ -1,3 +1,4 @@
+#include "c_bind.hpp"
 #include "pedersen.hpp"
 #include <common/serialize.hpp>
 #include <common/timer.hpp>

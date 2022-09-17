@@ -35,6 +35,7 @@ add_subdirectory(polynomials)
 add_subdirectory(plonk)
 add_subdirectory(stdlib)
 add_subdirectory(dsl)
+add_subdirectory(bb)
 add_subdirectory(rollup)
 
 if(BENCHMARKS)

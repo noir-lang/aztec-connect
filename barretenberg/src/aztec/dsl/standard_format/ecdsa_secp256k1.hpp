@@ -129,31 +129,37 @@ struct EcdsaSecp256k1Constraint {
 
 void create_ecdsa_verify_constraints(waffle::TurboComposer& composer, const EcdsaSecp256k1Constraint& input)
 {
+    (void)composer;
+    (void)input;
 
-    auto new_sig = ecdsa_convert_signature(composer, input.signature);
+    // auto new_sig = ecdsa_convert_signature(composer, input.signature);
 
-    auto message = ecdsa_vector_of_bytes_to_byte_array(composer, input.message);
-    auto pub_key_x_byte_arr = ecdsa_vector_of_bytes_to_byte_array(composer, input.pub_x_indices);
-    auto pub_key_y_byte_arr = ecdsa_vector_of_bytes_to_byte_array(composer, input.pub_y_indices);
+    // auto message = ecdsa_vector_of_bytes_to_byte_array(composer, input.message);
+    // auto pub_key_x_byte_arr = ecdsa_vector_of_bytes_to_byte_array(composer, input.pub_x_indices);
+    // auto pub_key_y_byte_arr = ecdsa_vector_of_bytes_to_byte_array(composer, input.pub_y_indices);
 
-    auto pub_key_x_fq = stdlib::secp256k::fq(pub_key_x_byte_arr);
-    auto pub_key_y_fq = stdlib::secp256k::fq(pub_key_y_byte_arr);
+    // auto pub_key_x_fq = stdlib::secp256k::fq(pub_key_x_byte_arr);
+    // auto pub_key_y_fq = stdlib::secp256k::fq(pub_key_y_byte_arr);
 
-    std::vector<uint8_t> rr(new_sig.r.begin(), new_sig.r.end());
-    std::vector<uint8_t> ss(new_sig.s.begin(), new_sig.s.end());
+    // std::vector<uint8_t> rr(new_sig.r.begin(), new_sig.r.end());
+    // std::vector<uint8_t> ss(new_sig.s.begin(), new_sig.s.end());
 
-    stdlib::ecdsa::signature<waffle::TurboComposer> sig{ stdlib::byte_array<waffle::TurboComposer>(&composer, rr),
-                                                         stdlib::byte_array<waffle::TurboComposer>(&composer, ss) };
+    // stdlib::ecdsa::signature<waffle::TurboComposer> sig{ stdlib::byte_array<waffle::TurboComposer>(&composer, rr),
+    //                                                      stdlib::byte_array<waffle::TurboComposer>(&composer, ss) };
 
-    auto pub_key = stdlib::secp256k::g1(pub_key_x_fq, pub_key_y_fq);
+    // auto pub_key = stdlib::secp256k::g1(pub_key_x_fq, pub_key_y_fq);
+    // This verify_signature method does not work because of a new
+    // requirement added:
+    //
+    // (field<secp256k1::Secp256k1FqParams>::modulus >> 255) == numeric::uint256_t(0)
+    //
+    // stdlib::bool_t<waffle::TurboComposer> signature_result = stdlib::ecdsa::
+    //     verify_signature<waffle::TurboComposer, stdlib::secp256k::fq, stdlib::secp256k::fr, stdlib::secp256k::g1>(
+    //         message, pub_key, sig);
 
-    stdlib::bool_t<waffle::TurboComposer> signature_result = stdlib::ecdsa::
-        verify_signature<waffle::TurboComposer, stdlib::secp256k::fq, stdlib::secp256k::fr, stdlib::secp256k::g1>(
-            message, pub_key, sig);
+    // auto result_bool = composer.add_variable(signature_result.get_value() == true);
 
-    auto result_bool = composer.add_variable(signature_result.get_value() == true);
-
-    composer.copy_from_to(result_bool, input.result);
+    composer.copy_from_to(false, input.result);
 }
 
 template <typename B> inline void read(B& buf, EcdsaSecp256k1Constraint& constraint)

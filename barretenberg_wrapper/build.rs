@@ -1,4 +1,3 @@
-use cmake;
 use std::{env, path::PathBuf};
 // These are the operating systems that are supported
 pub enum OS {
@@ -95,16 +94,18 @@ fn main() {
 
     let dst = cmake::Config::new("../barretenberg")
         .very_verbose(true)
-        .env("NUM_JOBS", "16")
+        .cxxflag("-fPIC")
+        .cxxflag("-fPIE")
+        .env("NUM_JOBS", num_cpus::get().to_string())
         .define("TOOLCHAIN", toolchain)
         .build();
 
-    // Manually link all of the libraries together
+    // Manually link all of the libraries
 
     // Link C++ std lib
     println!("cargo:rustc-link-lib={}", select_cpp_stdlib());
     // Link lib OMP
-    println!("cargo:rustc-link-lib=omp");
+    link_lib_omp();
 
     // println!(
     //     "cargo:rustc-link-search={}/build/src/aztec/bb",
@@ -164,4 +165,35 @@ fn main() {
     bindings
         .write_to_file(out_path.join("bindings.rs"))
         .expect("Couldn't write bindings");
+}
+
+fn link_lib_omp() {
+    //
+    // we are using clang, so we need to tell the linker where
+    // to search for lomp. If it were gcc, we could simply link
+    // gomp.
+    //
+    // For macOS, we do not need to supply the search path
+    // however for linux we do
+    if let OS::Linux = select_os() {
+        let llvm_dir = find_llvm_linux_path();
+        println!("cargo:rustc-link-search={}/lib", llvm_dir);
+    }
+    println!("cargo:rustc-link-lib=omp")
+}
+
+fn find_llvm_linux_path() -> String {
+    // Most linux systems will have the `find` application
+    //
+    // This assumes that there is a single llvm-X folder in /usr/lib
+
+    let output = std::process::Command::new("sh")
+        .arg("-c")
+        .arg("find /usr/lib -type d -name \"*llvm-*\" -print -quit")
+        .stdout(std::process::Stdio::piped())
+        .output()
+        .expect("Failed to execute command to run `find`");
+    // This should be the path to llvm
+    let path_to_llvm = String::from_utf8(output.stdout).unwrap();
+    path_to_llvm.trim().to_owned()
 }

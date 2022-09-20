@@ -71,6 +71,7 @@ if(WASM)
         $<TARGET_OBJECTS:rollup_proofs_account_objects>
         $<TARGET_OBJECTS:rollup_proofs_join_split_objects>
         $<TARGET_OBJECTS:rollup_proofs_claim_objects>
+        $<TARGET_OBJECTS:rollup_proofs_standard_example_objects>
         $<TARGET_OBJECTS:dsl_objects>
     )
 

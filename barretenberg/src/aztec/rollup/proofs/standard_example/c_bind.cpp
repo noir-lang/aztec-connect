@@ -4,13 +4,25 @@
 #include <cstdint>
 #include <plonk/reference_string/pippenger_reference_string.hpp>
 #include <sstream>
+// #include <dsl/standard_format/standard_format.hpp>
 
 using namespace barretenberg;
-using namespace plonk::stdlib::types::standard;
+using namespace plonk::stdlib::types::turbo;
 
 #define WASM_EXPORT __attribute__((visibility("default")))
 
 extern "C" {
+
+WASM_EXPORT void standard_example__init_circuit_def(uint8_t const* constraint_system_buf)
+{
+    rollup::proofs::standard_example::c_init_circuit_def(constraint_system_buf);
+}
+
+// Get the circuit size for the constraint system.
+WASM_EXPORT uint32_t standard_example__get_circuit_size(uint8_t const* constraint_system_buf)
+{
+    return rollup::proofs::standard_example::c_get_circuit_size(constraint_system_buf);
+}
 
 WASM_EXPORT void standard_example__init_proving_key()
 {
@@ -25,9 +37,11 @@ WASM_EXPORT void standard_example__init_verification_key(void* pippenger_ptr, ui
     rollup::proofs::standard_example::init_verification_key(std::move(crs_factory));
 }
 
-WASM_EXPORT void* standard_example__new_prover()
+WASM_EXPORT void* standard_example__new_prover(uint8_t const* witness_buf)
 {
-    auto prover = rollup::proofs::standard_example::new_prover();
+    auto witness = from_buffer<std::vector<fr>>(witness_buf);
+
+    auto prover = rollup::proofs::standard_example::new_prover(witness);
     return new Prover(std::move(prover));
 }
 

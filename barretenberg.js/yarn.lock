@@ -1211,6 +1211,11 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
+"@noir-lang/aztec_backend@0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@noir-lang/aztec_backend/-/aztec_backend-0.6.0.tgz#f46c3badd762ddfbb01b9acd516bfef258b513f1"
+  integrity sha512-qOY1o3/Y9XI5OcOhg6g35TOGAt2sSURIlAS6THXi1ezkWVagE/FKJoOiic8WWSZU9149g5ZHYHKObXoboQrJ1g==
+
 "@parcel/fs@^1.11.0":
   version "1.11.0"
   resolved "https://registry.yarnpkg.com/@parcel/fs/-/fs-1.11.0.tgz#fb8a2be038c454ad46a50dc0554c1805f13535cd"

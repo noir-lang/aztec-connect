@@ -1,0 +1,16 @@
+{
+  "name": "barretenberg-noir-js",
+  "version": "1.2.0",
+  "description": "sets up a prover and verifier for ACIR circuits",
+  "scripts": {
+    "clean": "rm -rf ./dest",
+    "build": "yarn clean && tsc && node dest/index.js"
+  },
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@noir-lang/barretenberg": "2.13.0",
+    "@noir-lang/noir_wasm": "^0.6.0",
+    "typescript": "^4.7.4"
+  }
+}

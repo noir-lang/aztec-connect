@@ -1,3 +1,4 @@
+#pragma once
 #include <common/serialize.hpp>
 #include <common/assert.hpp>
 #include <plonk/composer/composer_base.hpp>

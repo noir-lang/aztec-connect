@@ -13,6 +13,15 @@ WASM_EXPORT void pedersen__init()
     crypto::pedersen::init_generator_data();
 }
 
+WASM_EXPORT void pedersen__commit(uint8_t const* inputs_buffer, uint8_t* output)
+{
+    std::vector<grumpkin::fq> to_compress;
+    read(inputs_buffer, to_compress);
+    grumpkin::g1::affine_element pedersen_hash = crypto::pedersen::commit_native(to_compress);
+
+    write(output, pedersen_hash);
+}
+
 WASM_EXPORT void pedersen__compress_fields(uint8_t const* left, uint8_t const* right, uint8_t* result)
 {
     auto lhs = barretenberg::fr::serialize_from_buffer(left);

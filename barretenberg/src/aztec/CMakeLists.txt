@@ -65,6 +65,7 @@ if(WASM)
         $<TARGET_OBJECTS:stdlib_schnorr_objects>
         $<TARGET_OBJECTS:stdlib_pedersen_objects>
         $<TARGET_OBJECTS:stdlib_blake2s_objects>
+        $<TARGET_OBJECTS:stdlib_sha256_objects>
         $<TARGET_OBJECTS:rollup_proofs_inner_proof_data_objects>
         $<TARGET_OBJECTS:rollup_proofs_notes_objects>
         $<TARGET_OBJECTS:rollup_proofs_account_objects>

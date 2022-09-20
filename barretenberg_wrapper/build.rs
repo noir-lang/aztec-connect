@@ -9,18 +9,17 @@ pub enum Arch {
     X86_64,
     Arm,
 }
+// These constants correspond to the filenames
+// in cmake/toolchains
+//
+// There are currently no toolchains for windows
+// Please use WSL
+const INTEL_APPLE: &str = "x86_64-apple-clang";
+const INTEL_LINUX: &str = "x86_64-linux-clang";
+const ARM_APPLE: &str = "arm-apple-clang";
+const ARM_LINUX: &str = "arm64-linux-gcc";
 
 fn select_toolchain() -> &'static str {
-    // These constants correspond to the filenames
-    // in cmake/toolchains
-    //
-    // There are currently no toolchains for windows
-    // Please use WSL
-    const INTEL_APPLE: &str = "x86_64-apple-clang";
-    const INTEL_LINUX: &str = "x86_64-linux-clang";
-    const ARM_APPLE: &str = "arm-apple-clang";
-    const ARM_LINUX: &str = "arm64-linux-gcc";
-
     let arch = select_arch();
     let os = select_os();
     match (os, arch) {
@@ -219,8 +218,7 @@ fn main() {
 fn link_lib_omp() {
     //
     // we are using clang, so we need to tell the linker where
-    // to search for lomp. If it were gcc, we could simply link
-    // gomp.
+    // to search for lomp.
     //
     // For macOS, we do not need to supply the search path
     // however for linux we do
@@ -228,7 +226,12 @@ fn link_lib_omp() {
         let llvm_dir = find_llvm_linux_path();
         println!("cargo:rustc-link-search={}/lib", llvm_dir);
     }
-    println!("cargo:rustc-link-lib=omp")
+    if let ARM_LINUX = select_toolchain() {
+        // only arm linux uses gcc
+        println!("cargo:rustc-link-lib=gomp")
+    } else {
+        println!("cargo:rustc-link-lib=omp")
+    }
 }
 
 fn find_llvm_linux_path() -> String {

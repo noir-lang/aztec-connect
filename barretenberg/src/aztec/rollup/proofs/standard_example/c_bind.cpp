@@ -3,8 +3,6 @@
 #include <common/streams.hpp>
 #include <cstdint>
 #include <plonk/reference_string/pippenger_reference_string.hpp>
-#include <sstream>
-// #include <dsl/standard_format/standard_format.hpp>
 
 using namespace barretenberg;
 using namespace plonk::stdlib::types::turbo;
@@ -54,5 +52,52 @@ WASM_EXPORT bool standard_example__verify_proof(uint8_t* proof, uint32_t length)
 {
     waffle::plonk_proof pp = { std::vector<uint8_t>(proof, proof + length) };
     return rollup::proofs::standard_example::verify_proof(pp);
+}
+}
+
+// standard format stuff
+
+using namespace waffle;
+using namespace std;
+
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
+extern "C" {
+
+// BACKWARDS COMPATIBILITY
+WASM_EXPORT uint32_t composer__get_circuit_size(uint8_t const* constraint_system_buf)
+{
+    return rollup::proofs::standard_example::c_get_circuit_size(constraint_system_buf);
+}
+
+// BACKWARDS COMPATIBILITY
+WASM_EXPORT uint32_t composer__smart_contract(void* pippenger,
+                                              uint8_t const* g2x,
+                                              uint8_t const* constraint_system_buf,
+                                              uint8_t** output_buf)
+{
+    return rollup::proofs::standard_example::c_composer__smart_contract(
+        pippenger, g2x, constraint_system_buf, output_buf);
+}
+
+// BACKWARDS COMPATIBILITY
+WASM_EXPORT size_t composer__new_proof(void* pippenger,
+                                       uint8_t const* g2x,
+                                       uint8_t const* constraint_system_buf,
+                                       uint8_t const* witness_buf,
+                                       uint8_t** proof_data_buf)
+{
+
+    return rollup::proofs::standard_example::c_composer__new_proof(
+        pippenger, g2x, constraint_system_buf, witness_buf, proof_data_buf);
+}
+
+// BACKWARDS COMPATIBILITY
+WASM_EXPORT bool composer__verify_proof(
+    void* pippenger, uint8_t const* g2x, uint8_t const* constraint_system_buf, uint8_t* proof, uint32_t length)
+{
+    return rollup::proofs::standard_example::c_composer__verify_proof(
+        pippenger, g2x, constraint_system_buf, proof, length);
 }
 }

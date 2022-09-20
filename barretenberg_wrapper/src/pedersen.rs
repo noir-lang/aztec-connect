@@ -45,7 +45,7 @@ pub fn encrypt(inputs_buffer: &[[u8; 32]]) -> ([u8; 32], [u8; 32]) {
     }
 
     unsafe {
-        pedersen__compress(buffer.as_ptr() as *const u8, result.as_mut_ptr());
+        pedersen__commit(buffer.as_ptr() as *const u8, result.as_mut_ptr());
     }
     let s: [u8; 32] = (result[0..32]).try_into().unwrap();
     let e: [u8; 32] = (result[32..64]).try_into().unwrap();

@@ -1,6 +1,7 @@
 import { setup_generic_prover_and_verifier, create_proof, verify_proof } from '@noir-lang/barretenberg/dest/client_proofs';
 import { compile, acir_from_bytes, acir_to_bytes  } from '@noir-lang/noir_wasm'
-
+import {  writeFileSync } from 'fs';
+import { join } from 'path';
 
 async function main() {
   // 1) Specify path to noir code
@@ -26,6 +27,9 @@ async function main() {
   // 3) Create prover and verifier for this circuit
 
   const [prover, verifier] = await setup_generic_prover_and_verifier(acir);
+  const sc = verifier.SmartContract();
+  syncWriteFile("./sc.sol", sc);
+  
   // 4) Create and verify proof 
   const proof = await create_proof(prover, acir, abi);
   const verified = await verify_proof(verifier, proof);
@@ -34,3 +38,11 @@ async function main() {
 }
 
 main().catch(console.log);
+
+
+function syncWriteFile(filename: string, data: any) {
+  writeFileSync(join(__dirname, filename), data, {
+    flag: 'w',
+  });
+}
+

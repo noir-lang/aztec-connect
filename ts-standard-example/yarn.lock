@@ -2,17 +2,17 @@
 # yarn lockfile v1
 
 
-"@noir-lang/aztec_backend@0.5.0":
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/@noir-lang/aztec_backend/-/aztec_backend-0.5.0.tgz#81d5f4d679cf4a4c3f5f2f72255db94c1e008334"
-  integrity sha512-OolGPb3l3N1CTBelTOmhR0fVW3o08lgSSZH4wT0h0v+5YVkZKlg4cqJf+lSHidV0RNkwT+WlJjBtz/45RvaADA==
+"@noir-lang/aztec_backend@0.9.0":
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/@noir-lang/aztec_backend/-/aztec_backend-0.9.0.tgz#46f39da24ef9005facf827783ce54435199f9ded"
+  integrity sha512-2lh0B/4AtCpox/pRsh2gOqZAhsviHy528uHab4aHQuXGXf1BTBEB+DpjxGRCL6a97rcUxeX9bUbn40hKdsEdSg==
 
-"@noir-lang/barretenberg@2.13.0":
-  version "2.13.0"
-  resolved "https://registry.yarnpkg.com/@noir-lang/barretenberg/-/barretenberg-2.13.0.tgz#0cf618af6cdeb22286ddb2d68cb7edb57e44c3bd"
-  integrity sha512-cLQ6JQ9TNqET+8q+2NGUdbik9Sk25VPTlY5zjXetYCc2/XKNomsFWqr48Df+IpDh4LHm9deaNlOtcgiA209BRg==
+"@noir-lang/barretenberg@2.17.0":
+  version "2.17.0"
+  resolved "https://registry.yarnpkg.com/@noir-lang/barretenberg/-/barretenberg-2.17.0.tgz#f6e1f68f29a3a30f6ea220da010e8238353eb73f"
+  integrity sha512-0LLpKdZnJ+z7Br7w5zLI9xUD6DpExGgXJ3iZWXZrciOD4cLdhXh1SBNFCIN1uuMRJpeM6Qvvx33c+aKYyTh47w==
   dependencies:
-    "@noir-lang/aztec_backend" "0.5.0"
+    "@noir-lang/aztec_backend" "0.9.0"
     "@types/detect-node" "^2.0.0"
     "@types/levelup" "^4.3.0"
     buffer-browserify "^0.2.5"
@@ -28,10 +28,10 @@
     threads "1.7.0"
     tslib "^2.0.0"
 
-"@noir-lang/noir_wasm@^0.6.0":
-  version "0.6.0"
-  resolved "https://registry.yarnpkg.com/@noir-lang/noir_wasm/-/noir_wasm-0.6.0.tgz#8d47340d937d71564980b0688295ffa9ff85afd9"
-  integrity sha512-pSAjXi3lYtepmVK1D9V3npUOrq/sQIXfVz0Wsoh4uSSOmfFfccIrH+cL+MJg4AqmUfW4u2HfWCGdUJ9MSECEMQ==
+"@noir-lang/noir_wasm@^0.10.0":
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/@noir-lang/noir_wasm/-/noir_wasm-0.10.0.tgz#9223c2ab92cf24da7e483c4131179a4d62a59c19"
+  integrity sha512-ZoNlOqjGxf0YDCQP/tmD+2KsCePvjc0xcMiefmNREDyE3rpDCUiLt6B7kaXztFqPxpT7hi8+ARFUx7cZyqqZtg==
 
 "@types/abstract-leveldown@*":
   version "7.2.0"

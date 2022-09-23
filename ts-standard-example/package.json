@@ -9,8 +9,8 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
-    "@noir-lang/barretenberg": "2.13.0",
-    "@noir-lang/noir_wasm": "^0.6.0",
+    "@noir-lang/barretenberg": "2.17.0",
+    "@noir-lang/noir_wasm": "^0.10.0",
     "typescript": "^4.7.4"
   }
 }

@@ -2,6 +2,7 @@
 import {
   serialise_acir_to_barrtenberg_circuit,
   compute_witnesses as compute_partial_witnesses_aztec,
+  eth_contract_from_cs,
 } from '@noir-lang/aztec_backend';
 import { Crs } from '../../crs';
 import { PooledFft } from '../../fft';
@@ -54,6 +55,9 @@ export async function setup_generic_prover_and_verifier(acir: any) {
   await standardExampleProver.computeKey();
   // Create verifier key *and* patch proving key with the CRS
   await standardExampleVerifier.computeKey(pippenger.pool[0], crs.getG2Data());
+
+  // Compute smart contract and cache it
+  await standardExampleVerifier.computeSmartContract(pippenger.pool[0], crs.getG2Data(), serialised_circuit);
 
   return Promise.all([standardExampleProver, standardExampleVerifier]);
 }

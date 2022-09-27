@@ -36,6 +36,8 @@ uint32_t c_get_circuit_size(uint8_t const* constraint_system_buf)
     auto crs_factory = std::make_unique<waffle::ReferenceStringFactory>();
     auto composer = create_circuit(constraint_system, std::move(crs_factory));
 
+    std::cout << "Gate Count: " << composer.n << std::endl;
+
     auto prover = composer.create_prover();
     auto circuit_size = prover.get_circuit_size();
 

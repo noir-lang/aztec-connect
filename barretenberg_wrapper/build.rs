@@ -33,6 +33,7 @@ fn select_arch() -> Arch {
     let arch = std::env::consts::ARCH;
     match arch {
         "arm" => Arch::Arm,
+        "aarch64" => Arch::Arm,
         "x86_64" => Arch::X86_64,
         _ => {
             // For other arches, we default to x86_64
@@ -219,12 +220,11 @@ fn link_lib_omp() {
     //
     // we are using clang, so we need to tell the linker where
     // to search for lomp.
-    //
-    // For macOS, we do not need to supply the search path
-    // however for linux we do
     if let OS::Linux = select_os() {
         let llvm_dir = find_llvm_linux_path();
         println!("cargo:rustc-link-search={}/lib", llvm_dir);
+    } else if let ARM_APPLE = select_toolchain() {
+        println!("cargo:rustc-link-search=/opt/homebrew/lib")
     }
     if let ARM_LINUX = select_toolchain() {
         // only arm linux uses gcc

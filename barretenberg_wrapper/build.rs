@@ -9,11 +9,9 @@ pub enum Arch {
     X86_64,
     Arm,
 }
-// These constants correspond to the filenames
-// in cmake/toolchains
+// These constants correspond to the filenames in cmake/toolchains
 //
-// There are currently no toolchains for windows
-// Please use WSL
+// There are currently no toolchain for windows, please use WSL
 const INTEL_APPLE: &str = "x86_64-apple-clang";
 const INTEL_LINUX: &str = "x86_64-linux-clang";
 const ARM_APPLE: &str = "arm-apple-clang";
@@ -41,7 +39,6 @@ fn select_arch() -> Arch {
         }
     }
 }
-
 fn select_os() -> OS {
     let os = std::env::consts::OS;
     match os {
@@ -55,18 +52,16 @@ fn select_os() -> OS {
     }
 }
 fn select_cpp_stdlib() -> &'static str {
-    // The name of the c++ stdlib depends on the
-    // operating system
+    // The name of the c++ stdlib depends on the OS
     match select_os() {
         OS::Linux => "stdc++",
         OS::Apple => "c++",
     }
 }
-fn set_brew_env_var() {
-    // The cmake file for macos uses an environment
-    // variable to figure out where to find
-    // certain programs installed via brew
-    if let OS::Apple = select_os() {
+fn set_brew_env_var(toolchain: &'static str) {
+    // The cmake file for macos uses an environment variable
+    // to figure out where to find certain programs installed via brew
+    if toolchain == INTEL_APPLE || toolchain == ARM_APPLE {
         let output = std::process::Command::new("brew")
             .arg("--prefix")
             .stdout(std::process::Stdio::piped())
@@ -76,9 +71,9 @@ fn set_brew_env_var() {
         let stdout = String::from_utf8(output.stdout).unwrap();
 
         env::set_var("BREW_PREFIX", stdout.trim());
-        //
     }
 }
+
 fn main() {
     // Builds the project in ../barretenberg into dst
     println!("cargo:rerun-if-changed=../barretenberg");
@@ -90,7 +85,7 @@ fn main() {
     // TODO: We could check move this to a bash script along with
     // TODO: checks that check that all the necessary dependencies are
     // TODO installed via llvm
-    set_brew_env_var();
+    set_brew_env_var(toolchain);
 
     let dst = cmake::Config::new("../barretenberg")
         .very_verbose(true)
@@ -105,8 +100,8 @@ fn main() {
 
     // Link C++ std lib
     println!("cargo:rustc-link-lib={}", select_cpp_stdlib());
-    // Link lib OMP
-    link_lib_omp();
+    // Link lib OpenMP
+    link_lib_omp(toolchain);
 
     // println!(
     //     "cargo:rustc-link-search={}/build/src/aztec/bb",
@@ -203,7 +198,6 @@ fn main() {
     println!("cargo:rustc-link-lib=static=stdlib_pedersen");
 
     // Generate bindings from a header file and place them in a bindings.rs file
-
     let bindings = bindgen::Builder::default()
         // Clang args so that we can use relative include paths
         .clang_args(&["-I../barretenberg/src/aztec", "-I../..", "-I../", "-xc++"])
@@ -216,17 +210,18 @@ fn main() {
         .expect("Couldn't write bindings");
 }
 
-fn link_lib_omp() {
-    //
-    // we are using clang, so we need to tell the linker where
-    // to search for lomp.
-    if let OS::Linux = select_os() {
-        let llvm_dir = find_llvm_linux_path();
-        println!("cargo:rustc-link-search={}/lib", llvm_dir);
-    } else if let ARM_APPLE = select_toolchain() {
-        println!("cargo:rustc-link-search=/opt/homebrew/lib")
+fn link_lib_omp(toolchain: &'static str) {
+    // We are using clang, so we need to tell the linker where to search for lomp
+    match toolchain {
+        INTEL_LINUX | ARM_LINUX => {
+            let llvm_dir = find_llvm_linux_path();
+            println!("cargo:rustc-link-search={}/lib", llvm_dir)
+        }
+        INTEL_APPLE => println!("cargo:rustc-link-search=/usr/local/lib"),
+        ARM_APPLE => println!("cargo:rustc-link-search=/opt/homebrew/lib"),
+        &_ => unimplemented!("lomp linking of {} is not supported", toolchain),
     }
-    if let ARM_LINUX = select_toolchain() {
+    if toolchain == ARM_LINUX {
         // only arm linux uses gcc
         println!("cargo:rustc-link-lib=gomp")
     } else {
@@ -238,7 +233,6 @@ fn find_llvm_linux_path() -> String {
     // Most linux systems will have the `find` application
     //
     // This assumes that there is a single llvm-X folder in /usr/lib
-
     let output = std::process::Command::new("sh")
         .arg("-c")
         .arg("find /usr/lib -type d -name \"*llvm-*\" -print -quit")

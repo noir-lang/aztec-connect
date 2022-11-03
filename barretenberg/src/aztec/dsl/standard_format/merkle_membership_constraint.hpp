@@ -32,7 +32,7 @@ void create_merkle_check_membership_constraint(waffle::TurboComposer& composer, 
 
     /// Convert index from a witness index into a byte array
     field_t index_field = field_t::from_witness_index(&composer, input.index);
-    byte_array index_arr(index_field);
+    auto index_bits = index_field.decompose_into_bits();
 
     /// Convert root into a field_t
     field_t root = field_t::from_witness_index(&composer, input.root);
@@ -47,10 +47,9 @@ void create_merkle_check_membership_constraint(waffle::TurboComposer& composer, 
         field_t right = field_t::from_witness_index(&composer, input.hash_path[i + 1]);
         hash_path.push_back(std::make_pair(left, right));
     }
-    (void)leaf;
-    (void)root;
-    // auto exists = check_subtree_membership(composer, root, hash_path, leaf, index_arr, 0);
-    // composer.assert_equal_constant(exists.witness_index, fr::one());
+
+    auto exists = check_subtree_membership(root, hash_path, leaf, index_bits, 0);
+    composer.assert_equal_constant(exists.witness_index, fr::one());
 }
 
 template <typename B> inline void read(B& buf, MerkleMembershipConstraint& constraint)

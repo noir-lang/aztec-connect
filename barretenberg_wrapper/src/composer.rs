@@ -51,7 +51,6 @@ pub unsafe fn verify(
     // This is not the case, if you take the proof directly from Barretenberg
     pippenger: *mut ::std::os::raw::c_void,
     proof: &[u8],
-    _public_inputs: &[u8], // TODO: remove this and update aztec_backend packages
     cs_ptr: &[u8],
     g2_ptr: &[u8],
 ) -> bool {

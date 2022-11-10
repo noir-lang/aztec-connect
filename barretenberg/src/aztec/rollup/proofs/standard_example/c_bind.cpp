@@ -22,6 +22,12 @@ WASM_EXPORT uint32_t standard_example__get_circuit_size(uint8_t const* constrain
     return rollup::proofs::standard_example::c_get_circuit_size(constraint_system_buf);
 }
 
+// Get the exact circuit size for the constraint system.
+WASM_EXPORT uint32_t standard_example__get_exact_circuit_size(uint8_t const* constraint_system_buf)
+{
+    return rollup::proofs::standard_example::c_get_exact_circuit_size(constraint_system_buf);
+}
+
 WASM_EXPORT void standard_example__init_proving_key()
 {
     auto crs_factory = std::make_unique<waffle::ReferenceStringFactory>();

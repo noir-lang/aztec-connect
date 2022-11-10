@@ -18,6 +18,8 @@ WASM_EXPORT void standard_example__delete_prover(void* prover);
 
 WASM_EXPORT bool standard_example__verify_proof(uint8_t* proof, uint32_t length);
 
+WASM_EXPORT uint32_t standard_example__get_exact_circuit_size(uint8_t const* constraint_system_buf);
+
 // Backwards compatibility
 WASM_EXPORT uint32_t composer__get_circuit_size(uint8_t const* constraint_system_buf);
 WASM_EXPORT uint32_t composer__smart_contract(void* pippenger,

@@ -32,6 +32,7 @@ bool verify_proof(waffle::plonk_proof const& proof);
 // and define the C++ method, we want to call in the standard_example.cpp file
 void c_init_circuit_def(uint8_t const* constraint_system_buf);
 uint32_t c_get_circuit_size(uint8_t const* constraint_system_buf);
+uint32_t c_get_exact_circuit_size(uint8_t const* constraint_system_buf);
 size_t c_composer__new_proof(void* pippenger,
                              uint8_t const* g2x,
                              uint8_t const* constraint_system_buf,

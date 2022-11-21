@@ -197,6 +197,12 @@ fn main() {
     println!("cargo:rustc-link-lib=static=stdlib_schnorr");
     println!("cargo:rustc-link-lib=static=stdlib_pedersen");
 
+    println!(
+        "cargo:rustc-link-search={}/build/src/aztec/rollup/proofs/standard_example",
+        dst.display()
+    );
+    println!("cargo:rustc-link-lib=static=rollup_proofs_standard_example");
+
     // Generate bindings from a header file and place them in a bindings.rs file
     let bindings = bindgen::Builder::default()
         // Clang args so that we can use relative include paths

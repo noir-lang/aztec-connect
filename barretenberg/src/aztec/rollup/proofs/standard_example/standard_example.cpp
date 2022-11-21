@@ -42,6 +42,16 @@ uint32_t c_get_circuit_size(uint8_t const* constraint_system_buf)
     return static_cast<uint32_t>(circuit_size);
 }
 
+uint32_t c_get_exact_circuit_size(uint8_t const* constraint_system_buf)
+{
+    auto constraint_system = from_buffer<waffle::standard_format>(constraint_system_buf);
+    auto crs_factory = std::make_unique<waffle::ReferenceStringFactory>();
+    auto composer = create_circuit(constraint_system, std::move(crs_factory));
+
+    auto num_gates = composer.get_num_gates();
+    return static_cast<uint32_t>(num_gates);
+}
+
 void init_proving_key(std::unique_ptr<waffle::ReferenceStringFactory>&& crs_factory)
 {
     auto composer = create_circuit(*constraint_system, std::move(crs_factory));

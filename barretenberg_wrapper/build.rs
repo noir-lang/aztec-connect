@@ -231,7 +231,7 @@ fn link_lib_omp(toolchain: &'static str) {
         // only arm linux uses gcc
         println!("cargo:rustc-link-lib=gomp")
     } else {
-        println!("cargo:rustc-link-lib=omp")
+        println!("cargo:rustc-link-lib=omp5")
     }
 }
 

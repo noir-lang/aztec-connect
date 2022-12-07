@@ -152,7 +152,17 @@ point<C> variable_base_mul(const point<C>& pub_key, const point<C>& current_accu
     grumpkin::g1::affine_element pub_key_native(pub_key.x.get_value(), pub_key.y.get_value());
     grumpkin::g1::affine_element current_accumulator_native(current_accumulator.x.get_value(),
                                                             current_accumulator.y.get_value());
-    ASSERT(pub_key_native.on_curve() && current_accumulator_native.on_curve());
+
+    const auto validate_on_curve = [&](const auto& pt) {
+        const auto& x = pt.x;
+        const auto& y = pt.y;
+        auto on_curve = x * x;
+        on_curve = on_curve * x + grumpkin::g1::curve_b; // x^3 - 17
+        on_curve = y.madd(y, -on_curve);                 // on_curve = y^2 - (x^3 - 17) == 0
+        on_curve.assert_is_zero("create_point_witness: point not on curve");
+    };
+    validate_on_curve(pub_key);
+    validate_on_curve(current_accumulator);
 
     field_t<C> two(pub_key.x.context, 2);
 

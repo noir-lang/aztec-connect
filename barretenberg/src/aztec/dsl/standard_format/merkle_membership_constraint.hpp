@@ -42,6 +42,9 @@ void create_merkle_check_membership_constraint(waffle::TurboComposer& composer, 
     /// struct which requires the method create_witness_hashpath
     hash_path<waffle::TurboComposer> hash_path;
 
+    // In Noir we accept a hash path that only contains one hash per tree level
+    // It is ok to reuse the leaf as it will be overridden in check_subtree_membership when computing the current root
+    // at each tree level
     for (size_t i = 0; i < input.hash_path.size(); i++) {
         if (index_bits[i].get_value() == false) {
             field_t left = leaf;

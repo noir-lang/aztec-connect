@@ -109,9 +109,6 @@ size_t c_composer__new_proof(void* pippenger,
     auto witness = from_buffer<std::vector<fr>>(witness_buf);
     auto composer = create_circuit_with_witness(constraint_system, witness, std::move(crs_factory));
 
-    bool checked_circuit_res = composer.check_circuit();
-    printf("check_circuit result: %d\n", checked_circuit_res);
-
     // aligned_free((void*)witness_buf);
     // aligned_free((void*)g2x);
     // aligned_free((void*)constraint_system_buf);

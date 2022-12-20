@@ -77,5 +77,5 @@
   ],
   "browser": "./esm/index.js",
   "main": "./dest/index.js",
-  "module": "./index.mjs"
+  "module": "./exports/index.mjs"
 }

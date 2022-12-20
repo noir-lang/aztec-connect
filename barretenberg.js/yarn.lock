@@ -1212,9 +1212,9 @@
     fastq "^1.6.0"
 
 "@noir-lang/aztec_backend@^0.9.0-287d42d":
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/@noir-lang/aztec_backend/-/aztec_backend-0.9.0.tgz#46f39da24ef9005facf827783ce54435199f9ded"
-  integrity sha512-2lh0B/4AtCpox/pRsh2gOqZAhsviHy528uHab4aHQuXGXf1BTBEB+DpjxGRCL6a97rcUxeX9bUbn40hKdsEdSg==
+  version "0.9.0-287d42d"
+  resolved "https://registry.yarnpkg.com/@noir-lang/aztec_backend/-/aztec_backend-0.9.0-287d42d.tgz#762cc8d3d031609e0b6add89a40523548bf0cd89"
+  integrity sha512-W2pPb4b+T/8DQqi9LvXHQvRfrv2fa7xSBLPG2wGPidggu4yAHeCqMmnZSeO7WY1xgTWwuydYIJPgr/QIfkeC+w==
 
 "@noir-lang/noir_wasm@0.10.0":
   version "0.10.0"

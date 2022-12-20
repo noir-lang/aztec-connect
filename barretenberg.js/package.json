@@ -1,6 +1,6 @@
 {
   "name": "@noir-lang/barretenberg",
-  "version": "2.19.0-40565bf",
+  "version": "2.19.0-2f06fd8",
   "license": "GPL-2.0",
   "scripts": {
     "fix_imu_wasm_index.js": "./node_modules/.bin/swc ./dest/wasm/index.js --out-file=./dest/wasm/index.js",
@@ -59,10 +59,10 @@
     "@types/node": "^15.6.2",
     "@typescript-eslint/eslint-plugin": "^5.25.0",
     "@typescript-eslint/parser": "^5.25.0",
-    "parcel-bundler": "^1.12.5",
     "eslint": "^8.16.0",
     "eslint-config-prettier": "^8.5.0",
     "jest": "^27.0.3",
+    "parcel-bundler": "^1.12.5",
     "prettier": "^2.6.2",
     "ts-jest": "^27.0.2",
     "ts-node": "^10.0.0",
@@ -75,6 +75,15 @@
     "src",
     "package.json"
   ],
+  "exports": {
+    "node": {
+      "import": "./exports/index.mjs",
+      "require": "./dest/index.js"
+    },
+    "default": {
+      "import": "./esm/index.js"
+    }
+  },
   "browser": "./esm/index.js",
   "main": "./dest/index.js",
   "module": "./exports/index.mjs"

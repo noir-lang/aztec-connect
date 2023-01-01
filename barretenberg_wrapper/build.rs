@@ -228,11 +228,7 @@ fn link_lib_omp(toolchain: &'static str) {
         &_ => unimplemented!("lomp linking of {} is not supported", toolchain),
     }
     match toolchain {
-        ARM_LINUX => {
-            // only arm linux uses gcc
-            println!("cargo:rustc-link-lib=gomp")   
-        }
-        INTEL_APPLE | ARM_APPLE => {
+        ARM_LINUX | INTEL_APPLE | ARM_APPLE => {
             println!("cargo:rustc-link-lib=omp")
         }
         &_ => println!("cargo:rustc-link-lib=omp5")

@@ -1,5 +1,5 @@
 import { readFile } from 'fs';
-import isNode from 'detect-node';
+import { isNode } from '../isNode';
 import { promisify } from 'util';
 import { EventEmitter } from 'events';
 

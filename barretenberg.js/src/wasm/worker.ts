@@ -1,4 +1,5 @@
 /* eslint-disable require-await */
+import '../buffer.js';
 import { Subject, Observable } from 'threads/observable';
 import { expose, Transfer } from 'threads/worker';
 import { BarretenbergWasm } from '.';

@@ -3,15 +3,7 @@
   "version": "2.19.0-b3f5916",
   "license": "GPL-2.0",
   "scripts": {
-    "fix_imu_wasm_index.js": "./node_modules/.bin/swc ./dest/wasm/index.js --out-file=./dest/wasm/index.js",
-    "fix_imu_barretenberg_wasm.js": "./node_modules/.bin/swc ./dest/wasm/barretenberg_wasm.js --out-file=./dest/wasm/barretenberg_wasm.js",
-    "fix_imu_worker_factory.js": "./node_modules/.bin/swc ./dest/wasm/worker_factory.js --out-file=./dest/wasm/worker_factory.js",
-    "fix_import_meta": "yarn fix_imu_wasm_index.js && yarn fix_imu_barretenberg_wasm.js && yarn fix_imu_worker_factory.js",
-    "fix_mport_meta:dev": "./node_modules/.bin/swc ./dest/wasm/worker_factory.js --out-file=./dest/wasm/worker_factory.js --watch",
-    "buildesm": "rm -rf ./esm && tsc --target es2018 --module es6 --outDir ./esm -p tsconfig.dest.json && cp ./src/wasm/barretenberg.wasm ./esm/wasm",
-    "build": "yarn clean && tsc -p tsconfig.dest.json && parcel build ./src/wasm/worker.ts --no-source-maps --out-dir ./dest && cp ./src/wasm/barretenberg.wasm ./dest/wasm",
-    "package": "yarn build && yarn buildesm && yarn fix_import_meta",
-    "build:dev:esm": "tsc --target es2018 --module es2020 --outDir ./esm -p tsconfig.dest.json --watch",
+    "build": "yarn clean && tsc -p tsconfig.dest.json && parcel build ./src/wasm/worker.ts --no-source-maps --out-dir ./dest && node ./package.js",
     "build:dev": "tsc -p tsconfig.dest.json --watch",
     "clean": "rm -rf ./dest ./.cache",
     "test": "jest",
@@ -31,11 +23,15 @@
   "browserslist": [
     "since 2017-06"
   ],
+  "peerDependencies": {
+    "@noir-lang/aztec_backend": "https://github.com/kobyhallx/aztec-backend#345effc4be463dbff39a836c13683472ab0ef5f"
+  },
   "dependencies": {
-    "@noir-lang/aztec_backend": "^0.9.0-287d42d",
     "@types/detect-node": "^2.0.0",
     "@types/levelup": "^4.3.0",
-    "buffer-browserify": "^0.2.5",
+    "buffer": "6.0.3",
+    "crypto": "npm:crypto-browserify@3.12.0",
+    "stream": "npm:stream-browserify@3.0.0",
     "debug": "^4.1.1",
     "detect-node": "^2.0.4",
     "fs-extra": "10.0.0",
@@ -77,7 +73,7 @@
   ],
   "exports": {
     "node": {
-      "import": "./exports/index.mjs",
+      "import": "./dest/index.js",
       "require": "./dest/index.js"
     },
     "default": {
@@ -86,5 +82,5 @@
   },
   "browser": "./esm/index.js",
   "main": "./dest/index.js",
-  "module": "./exports/index.mjs"
+  "module": "./dest/index.js"
 }

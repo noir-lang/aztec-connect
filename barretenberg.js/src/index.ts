@@ -1,3 +1,4 @@
+import './buffer.js';
 export * from "./wasm/barretenberg_wasm.js";
 
 export * from './crypto/aes128/index.js';
@@ -21,4 +22,6 @@ export * from './pippenger/index.js';
 
 export * from './rollup_proof/index.js';
 export * from './rollup_provider/index.js';
+
+
 

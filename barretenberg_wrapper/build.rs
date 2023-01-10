@@ -215,7 +215,10 @@ fn link_lib_omp(toolchain: &'static str) {
             let llvm_dir = find_llvm_linux_path();
             println!("cargo:rustc-link-search={}/lib", llvm_dir)
         }
-        INTEL_APPLE => println!("cargo:rustc-link-search=/usr/local/lib"),
+        INTEL_APPLE => {
+            let brew_prefix = find_brew_prefix();
+            println!("cargo:rustc-link-search={}/opt/libomp/lib", brew_prefix)
+        },
         ARM_APPLE => {
             let brew_prefix = find_brew_prefix();
             println!("cargo:rustc-link-search={}/opt/libomp/lib", brew_prefix)

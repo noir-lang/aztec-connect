@@ -93,6 +93,7 @@ fn main() {
         .cxxflag("-fPIE")
         .env("NUM_JOBS", num_cpus::get().to_string())
         .define("TOOLCHAIN", toolchain)
+        .define("TESTING", "OFF")
         .always_configure(false)
         .build();
 

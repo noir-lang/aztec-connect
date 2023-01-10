@@ -62,15 +62,7 @@ fn set_brew_env_var(toolchain: &'static str) {
     // The cmake file for macos uses an environment variable
     // to figure out where to find certain programs installed via brew
     if toolchain == INTEL_APPLE || toolchain == ARM_APPLE {
-        let output = std::process::Command::new("brew")
-            .arg("--prefix")
-            .stdout(std::process::Stdio::piped())
-            .output()
-            .expect("Failed to execute command to run `brew --prefix` is brew installed?");
-
-        let stdout = String::from_utf8(output.stdout).unwrap();
-
-        env::set_var("BREW_PREFIX", stdout.trim());
+        env::set_var("BREW_PREFIX", find_brew_prefix());
     }
 }
 
@@ -224,7 +216,10 @@ fn link_lib_omp(toolchain: &'static str) {
             println!("cargo:rustc-link-search={}/lib", llvm_dir)
         }
         INTEL_APPLE => println!("cargo:rustc-link-search=/usr/local/lib"),
-        ARM_APPLE => println!("cargo:rustc-link-search=/opt/homebrew/lib"),
+        ARM_APPLE => {
+            let brew_prefix = find_brew_prefix();
+            println!("cargo:rustc-link-search={}/opt/libomp/lib", brew_prefix)
+        }
         &_ => unimplemented!("lomp linking of {} is not supported", toolchain),
     }
     match toolchain {
@@ -252,4 +247,16 @@ fn find_llvm_linux_path() -> String {
     // This should be the path to llvm
     let path_to_llvm = String::from_utf8(output.stdout).unwrap();
     path_to_llvm.trim().to_owned()
+}
+
+fn find_brew_prefix() -> String {
+    let output = std::process::Command::new("brew")
+        .arg("--prefix")
+        .stdout(std::process::Stdio::piped())
+        .output()
+        .expect("Failed to execute command to run `brew --prefix` is brew installed?");
+
+    let stdout = String::from_utf8(output.stdout).unwrap();
+
+    stdout.trim().to_string()
 }

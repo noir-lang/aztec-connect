@@ -24,7 +24,7 @@ pub fn compress_many(inputs: &[[u8; 32]]) -> [u8; 32] {
     let mut buffer = Vec::new();
     let witness_len = inputs.len() as u32;
     buffer.extend_from_slice(&witness_len.to_be_bytes());
-    for assignment in &*inputs {
+    for assignment in inputs {
         buffer.extend_from_slice(assignment);
     }
 
@@ -40,7 +40,7 @@ pub fn encrypt(inputs_buffer: &[[u8; 32]]) -> ([u8; 32], [u8; 32]) {
     let buffer_len = inputs_buffer.len() as u32;
     let mut result = [0_u8; 64];
     buffer.extend_from_slice(&buffer_len.to_be_bytes());
-    for e in &*inputs_buffer {
+    for e in inputs_buffer {
         buffer.extend_from_slice(e);
     }
 

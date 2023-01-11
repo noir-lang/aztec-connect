@@ -55,7 +55,7 @@ pub unsafe fn verify(
     g2_ptr: &[u8],
 ) -> bool {
     let proof_ptr = proof.as_ptr() as *const u8;
-    
+
     composer__verify_proof(
         pippenger,
         g2_ptr.as_ptr() as *const u8,

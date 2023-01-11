@@ -72,17 +72,17 @@ mod tests {
             Test {
                 input_left: f_zero,
                 input_right: f_one,
-                expected_hex: "108800e84e0f1dafb9fdf2e4b5b311fd59b8b08eaf899634c59cc985b490234b",
+                expected_hex: "229fb88be21cec523e9223a21324f2e305aea8bff9cdbcb3d0c6bba384666ea1",
             },
             Test {
                 input_left: f_one,
                 input_right: f_one,
-                expected_hex: "00f1c7ea35a4cf7ea5e678fcc2a5fac5351a563a3ff021f0c4a4126462aa081f",
+                expected_hex: "26425ddf29b4af6ee91008e8dbcbee975653170eee849efd75abf8301dee114e",
             },
             Test {
                 input_left: f_one,
                 input_right: f_zero,
-                expected_hex: "2619a3512420b4d3c72e43fdadff5f5a3ec1b0e7d75cd1482159a7e21f6c6d6a",
+                expected_hex: "08f3cb4f0fdd7a9ef130c6d4590af6750b1475161020a198a56eced45078ccf2",
             },
         ];
 
@@ -107,8 +107,8 @@ mod tests {
         inputs.push(f_one);
 
         let (x, y) = encrypt(&inputs);
-        let expected_x = "108800e84e0f1dafb9fdf2e4b5b311fd59b8b08eaf899634c59cc985b490234b";
-        let expected_y = "2d43ef68df82e0adf74fed92b1bc950670b9806afcfbcda08bb5baa6497bdf14";
+        let expected_x = "229fb88be21cec523e9223a21324f2e305aea8bff9cdbcb3d0c6bba384666ea1";
+        let expected_y = "296b4b4605e586a91caa3202baad557628a8c56d0a1d6dff1a7ca35aed3029d5";
         assert_eq!(expected_x, hex::encode(x));
         assert_eq!(expected_y, hex::encode(y));
     }

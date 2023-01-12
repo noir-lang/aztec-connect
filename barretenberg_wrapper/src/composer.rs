@@ -23,6 +23,8 @@ pub unsafe fn get_circuit_size(cs_prt: *const u8) -> u32 {
     // TODO test with a circuit of size 2^19 cf: https://github.com/noir-lang/noir/issues/12
 }
 
+/// # Safety
+/// cs_prt must point to a valid constraints system structure of type standard_format
 pub unsafe fn get_exact_circuit_size(cs_prt: *const u8) -> u32 {
     standard_example__get_exact_circuit_size(cs_prt)
 }
@@ -55,7 +57,7 @@ pub unsafe fn verify(
     g2_ptr: &[u8],
 ) -> bool {
     let proof_ptr = proof.as_ptr() as *const u8;
-    
+
     composer__verify_proof(
         pippenger,
         g2_ptr.as_ptr() as *const u8,

@@ -219,7 +219,7 @@ fn link_lib_omp(toolchain: &'static str) {
         INTEL_APPLE => {
             let brew_prefix = find_brew_prefix();
             println!("cargo:rustc-link-search={}/opt/libomp/lib", brew_prefix)
-        },
+        }
         ARM_APPLE => {
             let brew_prefix = find_brew_prefix();
             println!("cargo:rustc-link-search={}/opt/libomp/lib", brew_prefix)
@@ -230,7 +230,7 @@ fn link_lib_omp(toolchain: &'static str) {
         ARM_LINUX | INTEL_APPLE | ARM_APPLE => {
             println!("cargo:rustc-link-lib=omp")
         }
-        &_ => println!("cargo:rustc-link-lib=omp5")
+        &_ => println!("cargo:rustc-link-lib=omp5"),
     }
 }
 

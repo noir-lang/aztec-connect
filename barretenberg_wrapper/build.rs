@@ -15,7 +15,7 @@ pub enum Arch {
 const INTEL_APPLE: &str = "x86_64-apple-clang";
 const INTEL_LINUX: &str = "x86_64-linux-clang";
 const ARM_APPLE: &str = "arm-apple-clang";
-const ARM_LINUX: &str = "arm64-linux-gcc";
+const ARM_LINUX: &str = "aarch64-linux-clang";
 
 fn select_toolchain() -> &'static str {
     let arch = select_arch();
@@ -227,11 +227,7 @@ fn link_lib_omp(toolchain: &'static str) {
         &_ => unimplemented!("lomp linking of {} is not supported", toolchain),
     }
     match toolchain {
-        ARM_LINUX => {
-            // only arm linux uses gcc
-            println!("cargo:rustc-link-lib=gomp")
-        }
-        INTEL_APPLE | ARM_APPLE => {
+        ARM_LINUX | INTEL_APPLE | ARM_APPLE => {
             println!("cargo:rustc-link-lib=omp")
         }
         &_ => println!("cargo:rustc-link-lib=omp5"),

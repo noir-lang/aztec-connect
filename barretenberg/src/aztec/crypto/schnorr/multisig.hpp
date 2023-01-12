@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <utility>
-#include <algorithm>
 
 #include "./schnorr.hpp"
 namespace crypto {

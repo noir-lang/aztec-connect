@@ -2,92 +2,21 @@ name: Rust
 
 on: [push, pull_request]
 
-env:
-  CARGO_TERM_COLOR: always
-
 jobs:
   check_n_test:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - ubuntu-latest
-          - macos-latest
-        toolchain:
-          - stable
-          - nightly
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
-
-      - name: Install toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: ${{ matrix.toolchain }}
-          override: true
-
-      - name: Install dependencies
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: sudo apt update && sudo apt install libomp-dev
-
-      - name: Install dependencies
-        if: ${{ matrix.os == 'macos-latest' }}
-        run: brew install llvm libomp cmake
-
-      - name: Run cargo check
-        working-directory: "./barretenberg_wrapper"
-        run: |
-          cargo +${{ matrix.toolchain }} check --all-targets --verbose
-
-      - name: Run cargo test
-        working-directory: "./barretenberg_wrapper"
-        run: |
-          cargo +${{ matrix.toolchain }} test
+    name: cargo check & test
+    uses: noir-lang/.github/.github/workflows/rust-test.yml@main
+    with:
+      working-directory: "./barretenberg_wrapper"
 
   clippy:
     name: cargo clippy
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
-
-      - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-          components: rustfmt, clippy
-
-      - name: Install dependencies
-        run: sudo apt update && sudo apt install libomp-dev
-
-      - name: Run cargo clippy
-        working-directory: "./barretenberg_wrapper"
-        run: |
-          cargo clippy -- -D warnings
+    uses: noir-lang/.github/.github/workflows/rust-clippy.yml@main
+    with:
+      working-directory: "./barretenberg_wrapper"
 
   format:
     name: cargo fmt
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
-
-      - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-          components: rustfmt, clippy
-
-      - name: Install dependencies
-        run: sudo apt update && sudo apt install libomp-dev
-
-      - name: Run cargo fmt
-        working-directory: "./barretenberg_wrapper"
-        run: |
-          cargo fmt --all -- --check
+    uses: noir-lang/.github/.github/workflows/rust-format.yml@main
+    with:
+      working-directory: "./barretenberg_wrapper"

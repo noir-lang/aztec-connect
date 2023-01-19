@@ -91,3 +91,32 @@ jobs:
         working-directory: "./barretenberg_wrapper"
         run: |
           cargo fmt --all -- --check
+
+  check_n_test_clang10:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Setup toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install clang-10 lld-10 libomp-dev
+          sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-10 100
+          sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-10 100
+          sudo update-alternatives --install /usr/bin/lld lld /usr/bin/lld-10 100
+
+      - name: Run cargo check
+        working-directory: "./barretenberg_wrapper"
+        run: |
+          cargo check --all-targets --verbose
+
+      - name: Run cargo test
+        working-directory: "./barretenberg_wrapper"
+        run: |
+          cargo test -- --test-threads=1

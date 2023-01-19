@@ -4,16 +4,9 @@ on: [push, pull_request]
 
 jobs:
   check_n_test:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-        toolchain: [stable, nightly]
     name: cargo check & test
     uses: noir-lang/.github/.github/workflows/rust-test.yml@main
     with:
-      os: ${{ matrix.os }}
-      toolchain: ${{ matrix.toolchain }}
       working-directory: "./barretenberg_wrapper"
 
   clippy:

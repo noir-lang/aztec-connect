@@ -1,6 +1,6 @@
 if(NOT WASM)
-    
-    if (TESTING)
+
+    if (NOT LEVELDB_VENDORED)
         include(FetchContent)
         FetchContent_Declare(
             leveldb
@@ -10,9 +10,9 @@ if(NOT WASM)
         
         FetchContent_GetProperties(leveldb)
         if(NOT leveldb_POPULATED)
-        FetchContent_Populate(leveldb)
-        set(LEVELDB_BUILD_TESTS OFF CACHE BOOL "LevelDB tests off")
-        add_subdirectory(${leveldb_SOURCE_DIR} ${leveldb_BINARY_DIR} EXCLUDE_FROM_ALL)
+            FetchContent_Populate(leveldb)
+            set(LEVELDB_BUILD_TESTS OFF CACHE BOOL "LevelDB tests off")
+            add_subdirectory(${leveldb_SOURCE_DIR} ${leveldb_BINARY_DIR} EXCLUDE_FROM_ALL)
         endif()
         
         target_compile_options(
@@ -28,7 +28,7 @@ if(NOT WASM)
             -Wno-implicit-fallthrough
             )
             
-            link_libraries(leveldb)
+        link_libraries(leveldb)
     endif()
 endif()
 

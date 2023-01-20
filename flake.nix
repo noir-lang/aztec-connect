@@ -30,7 +30,7 @@
             nativeBuildInputs = toolsDependencies;
             buildInputs = buildDependencies;
             buildPhase = ''
-              cmake -DCMAKE_BUILD_TYPE=RelWithAssert -DTESTING=OFF -DBENCHMARKS=OFF .
+              cmake -DCMAKE_BUILD_TYPE=RelWithAssert -DLEVELDB_VENDORED=ON -DTESTING=OFF -DBENCHMARKS=OFF .
               cmake --build . --parallel
             '';
             installPhase = ''
@@ -48,7 +48,12 @@
             buildInputs = with pkgs; [ 
               clang-tools
               cmake
+              leveldb
             ];
+
+            shellHook = with pkgs; ''
+              echo ${leveldb.src.outPath}
+            '';
           };
         }
       );

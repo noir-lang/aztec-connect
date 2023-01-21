@@ -26,11 +26,13 @@
             pname = packageName;
             version = version';
             src = ./barretenberg;
+            # dontUseCmakeConfigure as per https://nixos.org/manual/nixpkgs/stable/#cmake
             dontUseCmakeConfigure=true;
             nativeBuildInputs = toolsDependencies;
             buildInputs = buildDependencies;
+            NIX_CFLAGS_COMPILE = if (pkgs.stdenv.isDarwin) then [" -fno-aligned-allocation"] else null;
             buildPhase = ''
-              cmake -DCMAKE_BUILD_TYPE=RelWithAssert -DLEVELDB_VENDORED=ON -DTESTING=OFF -DBENCHMARKS=OFF .
+              cmake -DCMAKE_BUILD_TYPE=RelWithAssert -DNIX_VENDORED_LIBS=ON -DTESTING=OFF -DBENCHMARKS=OFF .
               cmake --build . --parallel
             '';
             installPhase = ''
@@ -52,7 +54,7 @@
             ];
 
             shellHook = with pkgs; ''
-              echo ${leveldb.src.outPath}
+              
             '';
           };
         }

@@ -15,7 +15,7 @@ option(DISABLE_ADX "Disable ADX assembly variant" OFF)
 option(MULTITHREADING "Enable multi-threading" ON)
 option(TESTING "Build tests" ON)
 option(BENCHMARKS "Build benchmarks" ON)
-option(LEVELDB_VENDORED "Use System provided LEVELDB" OFF)
+option(NIX_VENDORED_LIBS "Use NIX provided LIBS" OFF)
 
 if(ARM)
     message(STATUS "Compiling for ARM.")

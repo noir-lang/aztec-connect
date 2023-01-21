@@ -1,6 +1,6 @@
 if(NOT WASM)
 
-    if (NOT LEVELDB_VENDORED)
+    if (NOT NIX_VENDORED_LIBS)
         include(FetchContent)
         FetchContent_Declare(
             leveldb

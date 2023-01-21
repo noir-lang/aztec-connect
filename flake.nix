@@ -39,9 +39,9 @@
             '';
           };
 
-          defaultPackage = self.packages.${system}.${packageName};
+          packages.default = self.packages.${system}.${packageName};
 
-          devShell = pkgs.mkShell {
+          devShells.default = pkgs.mkShell {
             inputsFrom = [ 
               self.packages.${system}.${packageName}
             ];

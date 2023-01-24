@@ -6,31 +6,31 @@
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
   outputs = { self, nixpkgs, flake-utils }:
+
     flake-utils.lib.eachDefaultSystem (
       system:
       let
-        pkgs = nixpkgs.legacyPackages.${system};
-        toolsDependencies = with pkgs; [ 
-        ]; # Input the build dependencies here
-        buildDependencies = with pkgs; [
-          cmake
-          llvmPackages_11.clang
-          llvmPackages_11.openmp
-          leveldb
-        ];
-        packageName = "Barretenberg"; # with builtins; head (match ".*project\\(([a-zA-Z0-9]+) *" (readFile ./barretenberg/CMakeLists.txt));
-        version' = "0.1.0"; # with builtins; head (match "^.*PROJECT\\(${packageName}.*VERSION\ ([^\)]+).*$" (readFile ./barretenberg/CMakeLists.txt));
-      in
+        libbarretenbergOverlay = final: prev: 
+        let
+          llvmPkgs = final.llvmPackages_14;
+        in
         {
-          packages.${packageName} = pkgs.stdenv.mkDerivation rec {
-            pname = packageName;
-            version = version';
+          final.stdenv = llvmPkgs.stdenv;
+          libbarretenberg = llvmPkgs.stdenv.mkDerivation rec {
+            pname = "libbarretenberg";
+            version = "0.1.0";
             src = ./barretenberg;
             # dontUseCmakeConfigure as per https://nixos.org/manual/nixpkgs/stable/#cmake
             dontUseCmakeConfigure=true;
-            nativeBuildInputs = toolsDependencies;
-            buildInputs = buildDependencies;
-            NIX_CFLAGS_COMPILE = if (pkgs.stdenv.isDarwin) then [" -fno-aligned-allocation"] else null;
+            nativeBuildInputs = with final; [
+              cmake
+            ];
+            buildInputs = with final; [
+              llvmPkgs.clang
+              llvmPkgs.openmp
+              leveldb
+            ];
+            NIX_CFLAGS_COMPILE = if (final.stdenv.isDarwin) then [" -fno-aligned-allocation"] else null;
             buildPhase = ''
               cmake -DCMAKE_BUILD_TYPE=RelWithAssert -DNIX_VENDORED_LIBS=ON -DTESTING=OFF -DBENCHMARKS=OFF .
               cmake --build . --parallel
@@ -41,22 +41,33 @@
             '';
           };
 
-          packages.default = self.packages.${system}.${packageName};
+        };
+
+        pkgs = import nixpkgs { inherit system; overlays = [ libbarretenbergOverlay ]; }; #nixpkgs.legacyPackages.${system};
+
+      in
+        {
+          packages.${pkgs.libbarretenberg.pname} = pkgs.libbarretenberg;
+
+          packages.default = self.packages.${system}.${pkgs.libbarretenberg.pname};
+
+          legacyPackages = pkgs;
 
           devShells.default = pkgs.mkShell {
             inputsFrom = [ 
-              self.packages.${system}.${packageName}
+              self.packages.${system}.${pkgs.libbarretenberg.pname}
             ];
-            buildInputs = with pkgs; [ 
-              clang-tools
-              cmake
-              leveldb
+            nativeBuildInputs = with pkgs; pkgs.libbarretenberg.nativeBuildInputs ++ [
+              starship
             ];
+            buildInputs = pkgs.libbarretenberg.buildInputs;
 
             shellHook = with pkgs; ''
-              
+              eval "$(starship init bash)"
+              echo "Hello :)"
             '';
           };
         }
       );
+
     }

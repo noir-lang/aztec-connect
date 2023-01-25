@@ -1,32 +1,32 @@
-name: update-repository
+name: build-linux
 # <arch>-<vendor>-<os>-<env>
 
 on:
   workflow_dispatch:
+  push:
+    # tags:
+    #   - "v*"
   # workflow_call:
   # schedule:
   #   - cron: "0 2 * * *" # run at 2 AM UTC
-  # push:
-  #   tags:
-  #     - "v*"
 
 jobs:
-  update-repository:
+  build-linux:
     runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      # - uses: actions/cache@v3
+      #   with:
+      #     path: |
+      #       ~/.cargo/bin/
+      #       ~/.cargo/registry/index/
+      #       ~/.cargo/registry/cache/
+      #       ~/.cargo/git/db/
+      #       target/
+      #     key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - uses: cachix/install-nix-action@v18
         with:

@@ -50,10 +50,12 @@ jobs:
       - name: Build ${{ matrix.artifact }} for ${{ matrix.target }}
         run: |
           nix build .#pkgsCross.${{ matrix.target }}.${{ matrix.artifact }}
-
+          mkdir artifacts
+          cp -a ./result/. artifacts
+          
       - name: Upload ${{ matrix.artifact }}-${{ matrix.target }}
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.artifact }}-${{ matrix.target }}
-          path: ./result
+          path: ./artifacts/
           retention-days: 3

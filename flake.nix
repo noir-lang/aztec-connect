@@ -13,28 +13,14 @@
           libbarretenberg = final.callPackage ./barretenberg/barretenberg.nix {
             llvmPackages = final.llvmPackages_12;
           };
-
-          libbarretenberg_wasm = final.callPackage ./barretenberg/wasm.nix {
-            stdenv = final.llvmPackages_12.stdenv;
-          };
         };
 
         pkgs = import nixpkgs {
           inherit system;
           overlays = [ libbarretenbergOverlay ];
         };
-      in {
 
-        packages.${pkgs.libbarretenberg.pname} = pkgs.libbarretenberg;
-
-        # packages.libbarretenberg_wasm = pkgs.libbarretenberg_wasm;
-
-        packages.default =
-          self.packages.${system}.${pkgs.libbarretenberg.pname};
-
-        legacyPackages = pkgs;
-
-        devShells.default = pkgs.mkShell {
+        shellComposition = {
           inputsFrom =
             [ self.packages.${system}.${pkgs.libbarretenberg.pname} ];
           nativeBuildInputs = with pkgs;
@@ -46,6 +32,22 @@
             echo "Hello :)"
           '';
         };
+      in {
+
+        packages.${pkgs.libbarretenberg.pname} = pkgs.libbarretenberg;
+
+        packages.default =
+          self.packages.${system}.${pkgs.libbarretenberg.pname};
+
+        legacyPackages = pkgs;
+
+        devShells.default =
+          pkgs.mkShell.override { stdenv = pkgs.libbarretenberg.stdenv; }
+          shellComposition;
+
+        devShells.wasi32 = pkgs.mkShell.override {
+          stdenv = pkgs.pkgsCross.wasi32.libbarretenberg.stdenv;
+        } shellComposition;
 
       });
 }

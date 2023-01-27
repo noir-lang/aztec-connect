@@ -20,7 +20,7 @@ jobs:
       matrix:
         include: 
           - target: wasi32
-            artifact: libbarretenberg_wasm
+            artifact: libbarretenberg
           - target: aarch64-multiplatform
             artifact: libbarretenberg
 
@@ -52,7 +52,7 @@ jobs:
           nix build .#pkgsCross.${{ matrix.target }}.${{ matrix.artifact }}
           mkdir artifacts
           cp -a ./result/. artifacts
-          
+
       - name: Upload ${{ matrix.artifact }}-${{ matrix.target }}
         uses: actions/upload-artifact@v3
         with:

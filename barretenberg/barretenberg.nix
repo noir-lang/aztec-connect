@@ -33,7 +33,6 @@ in llvmPackages.stdenv.mkDerivation rec {
   NIX_LDFLAGS =
     optionals targetPlatform.isWasm [ "-lwasi-emulated-process-clocks" ];
 
-  # cmake -DCMAKE_BUILD_TYPE=RelWithAssert -DNIX_VENDORED_LIBS=ON -DTESTING=OFF -DBENCHMARKS=OFF .
   buildPhase = if (targetPlatform.isWasm) then
     "cmake --build . --parallel --target barretenberg.wasm"
   else
@@ -44,6 +43,9 @@ in llvmPackages.stdenv.mkDerivation rec {
     cp -a bin/. $out/bin
   '' else ''
     mkdir -p $out/lib
+    mkdir -p $out/headers
     find src -name \*.a -exec cp {} $out/lib \;
+    cd $src/src
+    find aztec -name \*.hpp -exec cp --parents --no-preserve=mode,ownership {} $out/headers \;
   '';
 }

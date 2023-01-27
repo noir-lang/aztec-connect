@@ -2,10 +2,12 @@
   description =
     "Barretenberg: C++ cryptographic library, BN254 elliptic curve library, and PLONK SNARK prover";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
 
-  inputs.flake-utils.url = "github:numtide/flake-utils";
+    flake-utils.url = "github:numtide/flake-utils";
 
+  };
   outputs = { self, nixpkgs, flake-utils }:
     flake-utils.lib.eachDefaultSystem (system:
       let
@@ -34,12 +36,14 @@
         };
       in {
 
+        legacyPackages = pkgs;
+
         packages.${pkgs.libbarretenberg.pname} = pkgs.libbarretenberg;
 
         packages.default =
           self.packages.${system}.${pkgs.libbarretenberg.pname};
 
-        legacyPackages = pkgs;
+        packages.wasm = pkgs.pkgsCross.wasi32.libbarretenberg;
 
         devShells.default =
           pkgs.mkShell.override { stdenv = pkgs.libbarretenberg.stdenv; }

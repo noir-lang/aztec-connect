@@ -15,7 +15,6 @@ option(DISABLE_ADX "Disable ADX assembly variant" OFF)
 option(MULTITHREADING "Enable multi-threading" ON)
 option(TESTING "Build tests" ON)
 option(BENCHMARKS "Build benchmarks" ON)
-option(NIX_VENDORED_LIBS "Use NIX provided LIBS" OFF)
 
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64")
     message(STATUS "Compiling for ARM.")

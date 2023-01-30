@@ -21,10 +21,9 @@ in llvmPackages.stdenv.mkDerivation rec {
       leveldb
     ];
 
-  cmakeFlags = [ "-DNIX_VENDORED_LIBS=ON" "-DTESTING=OFF" "-DBENCHMARKS=OFF" ]
+  cmakeFlags = [ "-DTESTING=OFF" "-DBENCHMARKS=OFF" "-DTOOLCHAIN=${targetPlatform.system}" ]
     ++ optionals (targetPlatform.isDarwin || targetPlatform.isLinux)
-    [ "-DCMAKE_BUILD_TYPE=RelWithAssert" ]
-    ++ optionals targetPlatform.isWasm [ "-DTOOLCHAIN=wasm-linux-clang" ];
+    [ "-DCMAKE_BUILD_TYPE=RelWithAssert" ];
 
   NIX_CFLAGS_COMPILE =
     optionals targetPlatform.isDarwin [ " -fno-aligned-allocation" ]

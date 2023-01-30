@@ -11,15 +11,8 @@
   outputs = { self, nixpkgs, flake-utils }:
     flake-utils.lib.eachDefaultSystem (system:
       let
-        libbarretenbergOverlay = final: prev: {
-          libbarretenberg = final.callPackage ./barretenberg/barretenberg.nix {
-            llvmPackages = final.llvmPackages_12;
-          };
-        };
-
         pkgs = import nixpkgs {
           inherit system;
-          overlays = [ libbarretenbergOverlay ];
         };
 
         shellComposition = {
@@ -29,28 +22,38 @@
             pkgs.libbarretenberg.nativeBuildInputs ++ [ starship ];
           buildInputs = pkgs.libbarretenberg.buildInputs;
 
-          shellHook = with pkgs; ''
+          shellHook = ''
             eval "$(starship init bash)"
             echo "Hello :)"
           '';
         };
-      in {
+      in rec {
+        packages = {
+          llvm11 = pkgs.callPackage ./barretenberg/barretenberg.nix {
+            llvmPackages = pkgs.llvmPackages_11;
+          };
+          llvm12 = pkgs.callPackage ./barretenberg/barretenberg.nix {
+            llvmPackages = pkgs.llvmPackages_12;
+          };
+          llvm13 = pkgs.callPackage ./barretenberg/barretenberg.nix {
+            llvmPackages = pkgs.llvmPackages_13;
+          };
+          llvm14 = pkgs.callPackage ./barretenberg/barretenberg.nix {
+            llvmPackages = pkgs.llvmPackages_14;
+          };
+          wasm32 = pkgs.pkgsCross.wasi32.callPackage ./barretenberg/barretenberg.nix {
+            llvmPackages = pkgs.pkgsCross.wasi32.llvmPackages_12;
+          };
 
-        legacyPackages = pkgs;
-
-        packages.${pkgs.libbarretenberg.pname} = pkgs.libbarretenberg;
-
-        packages.default =
-          self.packages.${system}.${pkgs.libbarretenberg.pname};
-
-        packages.wasm = pkgs.pkgsCross.wasi32.libbarretenberg;
+          default = packages.llvm11;
+        };
 
         devShells.default =
-          pkgs.mkShell.override { stdenv = pkgs.libbarretenberg.stdenv; }
+          pkgs.mkShell.override { stdenv = packages.default.stdenv; }
           shellComposition;
 
         devShells.wasi32 = pkgs.mkShell.override {
-          stdenv = pkgs.pkgsCross.wasi32.libbarretenberg.stdenv;
+          stdenv = packages.wasm32.stdenv;
         } shellComposition;
 
       });

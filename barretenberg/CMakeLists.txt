@@ -1,7 +1,7 @@
 # barretenberg
 # copyright 2019 Spilsbury Holdings Ltd
 
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.24)
 
 include(cmake/toolchain.cmake)
 
@@ -15,18 +15,19 @@ option(DISABLE_ADX "Disable ADX assembly variant" OFF)
 option(MULTITHREADING "Enable multi-threading" ON)
 option(TESTING "Build tests" ON)
 option(BENCHMARKS "Build benchmarks" ON)
-option(NIX_VENDORED_LIBS "Use NIX provided LIBS" OFF)
 
-if(ARM)
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64")
     message(STATUS "Compiling for ARM.")
+    set(ARM ON)
     set(DISABLE_ASM ON)
     set(DISABLE_ADX ON)
     set(RUN_HAVE_STD_REGEX 0)
     set(RUN_HAVE_POSIX_REGEX 0)
 endif()
 
-if(WASM)
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "wasm32")
     message(STATUS "Compiling for WebAssembly.")
+    set(WASM ON)
     set(DISABLE_ASM ON)
     set(MULTITHREADING OFF)
     set(BENCHMARKS OFF)

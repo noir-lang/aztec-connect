@@ -63,6 +63,9 @@
           wasm32 = pkgs.pkgsCross.wasi32.callPackage ./barretenberg/barretenberg.nix {
             llvmPackages = pkgs.pkgsCross.wasi32.llvmPackages_12;
           };
+          aarch64-darwin = pkgs.pkgsCross.aarch64-darwin.callPackage ./barretenberg/barretenberg.nix {
+            llvmPackages = pkgs.pkgsCross.aarch64-darwin.llvmPackages_12;
+          };
 
           default = packages.llvm11;
         } // crossTargets;

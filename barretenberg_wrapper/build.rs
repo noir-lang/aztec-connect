@@ -12,10 +12,10 @@ pub enum Arch {
 // These constants correspond to the filenames in cmake/toolchains
 //
 // There are currently no toolchain for windows, please use WSL
-const INTEL_APPLE: &str = "x86_64-apple-clang";
-const INTEL_LINUX: &str = "x86_64-linux-clang";
-const ARM_APPLE: &str = "arm-apple-clang";
-const ARM_LINUX: &str = "aarch64-linux-clang";
+const INTEL_APPLE: &str = "x86_64-darwin";
+const INTEL_LINUX: &str = "x86_64-linux";
+const ARM_APPLE: &str = "aarch64-darwin";
+const ARM_LINUX: &str = "aarch64-linux";
 
 fn select_toolchain() -> &'static str {
     let arch = select_arch();

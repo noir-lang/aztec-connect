@@ -60,6 +60,6 @@ cd ..
 
 # Build WASM.
 mkdir -p build-wasm && cd build-wasm
-cmake -DTOOLCHAIN=wasm32-wasi -DTESTING=OFF ..
+cmake -DTOOLCHAIN=wasm32-wasi -DTESTING=OFF -DWASI_SDK_PREFIX=./src/wasi-sdk-12.0 ..
 cmake --build . --parallel --target barretenberg.wasm
 cd ..

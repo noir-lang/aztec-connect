@@ -48,7 +48,7 @@ fi
 
 # Build native.
 mkdir -p build && cd build
-cmake -DCMAKE_BUILD_TYPE=RelWithAssert -DTOOLCHAIN=$TOOLCHAIN -DTESTING=OFF ..
+cmake -DCMAKE_BUILD_TYPE=RelWithAssert -DCMAKE_TOOLCHAIN_FILE=./cmake/toolchains/$TOOLCHAIN.cmake -DTESTING=OFF ..
 cmake --build . --parallel
 cd ..
 
@@ -60,6 +60,6 @@ cd ..
 
 # Build WASM.
 mkdir -p build-wasm && cd build-wasm
-cmake -DTOOLCHAIN=wasm32-wasi -DTESTING=OFF -DWASI_SDK_PREFIX=./src/wasi-sdk-12.0 ..
+cmake -DCMAKE_TOOLCHAIN_FILE=./cmake/toolchains/wasm32-wasi.cmake -DTESTING=OFF -DWASI_SDK_PREFIX=./src/wasi-sdk-12.0 ..
 cmake --build . --parallel --target barretenberg.wasm
 cd ..

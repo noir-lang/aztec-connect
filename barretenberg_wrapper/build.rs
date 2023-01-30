@@ -84,7 +84,10 @@ fn main() {
         .cxxflag("-fPIC")
         .cxxflag("-fPIE")
         .env("NUM_JOBS", num_cpus::get().to_string())
-        .define("TOOLCHAIN", toolchain)
+        .define(
+            "CMAKE_TOOLCHAIN_FILE",
+            format!("./cmake/toolchains/{toolchain}.cmake"),
+        )
         .define("TESTING", "OFF")
         .always_configure(false)
         .build();

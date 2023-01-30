@@ -34,15 +34,15 @@ if [ "$OS" == "macos" ]; then
         exit 1
     fi
     if [ "$ARCH" = "arm64" ]; then
-        TOOLCHAIN=arm-apple-clang
+        TOOLCHAIN=aarch64-darwin
     else
-        TOOLCHAIN=x86_64-apple-clang
+        TOOLCHAIN=x86_64-darwin
     fi
 else
     if [ "$ARCH" = "aarch64" ]; then
-        TOOLCHAIN=aarch64-linux-clang
+        TOOLCHAIN=aarch64-linux
     else
-        TOOLCHAIN=x86_64-linux-clang
+        TOOLCHAIN=x86_64-linux
     fi
 fi
 
@@ -60,6 +60,6 @@ cd ..
 
 # Build WASM.
 mkdir -p build-wasm && cd build-wasm
-cmake -DTOOLCHAIN=wasm-linux-clang -DTESTING=OFF ..
+cmake -DTOOLCHAIN=wasm32-wasi -DTESTING=OFF ..
 cmake --build . --parallel --target barretenberg.wasm
 cd ..

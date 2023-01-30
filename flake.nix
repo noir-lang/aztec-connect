@@ -49,19 +49,23 @@
       rec {
         packages = {
           llvm11 = pkgs.callPackage ./barretenberg/barretenberg.nix {
+            stdenv = pkgs.llvmPackages_11.stdenv;
             llvmPackages = pkgs.llvmPackages_11;
           };
           llvm12 = pkgs.callPackage ./barretenberg/barretenberg.nix {
+            stdenv = pkgs.llvmPackages_12.stdenv;
             llvmPackages = pkgs.llvmPackages_12;
           };
           llvm13 = pkgs.callPackage ./barretenberg/barretenberg.nix {
+            stdenv = pkgs.llvmPackages_13.stdenv;
             llvmPackages = pkgs.llvmPackages_13;
           };
           llvm14 = pkgs.callPackage ./barretenberg/barretenberg.nix {
+            stdenv = pkgs.llvmPackages_14.stdenv;
             llvmPackages = pkgs.llvmPackages_14;
           };
           wasm32 = pkgs.pkgsCross.wasi32.callPackage ./barretenberg/barretenberg.nix {
-            llvmPackages = pkgs.pkgsCross.wasi32.llvmPackages_12;
+            stdenv = pkgs.pkgsCross.wasi32.llvmPackages_12.stdenv;
           };
           aarch64-darwin = pkgs.pkgsCross.aarch64-darwin.callPackage ./barretenberg/barretenberg.nix {
             llvmPackages = pkgs.pkgsCross.aarch64-darwin.llvmPackages_12;

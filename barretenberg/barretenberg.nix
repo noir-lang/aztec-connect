@@ -1,10 +1,9 @@
-{ lib, callPackage, llvmPackages, cmake, leveldb }:
+{ lib, stdenv, callPackage, llvmPackages, cmake, leveldb }:
 let
-  stdenv = llvmPackages.stdenv;
   optionals = lib.lists.optionals;
   targetPlatform = stdenv.targetPlatform;
   toolchain_file = ./cmake/toolchains/${targetPlatform.system}.cmake;
-in llvmPackages.stdenv.mkDerivation {
+in stdenv.mkDerivation {
   pname = "libbarretenberg";
   version = "0.1.0";
 

@@ -1,4 +1,3 @@
-# TODO: Add brew to path if it exists so OpenMP can be discovered from it
 if(MULTITHREADING)
     find_package(OpenMP REQUIRED)
     message(STATUS "Multithreading is enabled.")

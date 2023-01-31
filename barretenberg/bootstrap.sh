@@ -34,21 +34,21 @@ if [ "$OS" == "macos" ]; then
         exit 1
     fi
     if [ "$ARCH" = "arm64" ]; then
-        TOOLCHAIN=arm-apple-clang
+        TOOLCHAIN=aarch64-darwin
     else
-        TOOLCHAIN=x86_64-apple-clang
+        TOOLCHAIN=x86_64-darwin
     fi
 else
     if [ "$ARCH" = "aarch64" ]; then
-        TOOLCHAIN=aarch64-linux-clang
+        TOOLCHAIN=aarch64-linux
     else
-        TOOLCHAIN=x86_64-linux-clang
+        TOOLCHAIN=x86_64-linux
     fi
 fi
 
 # Build native.
 mkdir -p build && cd build
-cmake -DCMAKE_BUILD_TYPE=RelWithAssert -DTOOLCHAIN=$TOOLCHAIN -DTESTING=OFF ..
+cmake -DCMAKE_BUILD_TYPE=RelWithAssert -DCMAKE_TOOLCHAIN_FILE=./cmake/toolchains/$TOOLCHAIN.cmake -DTESTING=OFF ..
 cmake --build . --parallel
 cd ..
 
@@ -60,6 +60,6 @@ cd ..
 
 # Build WASM.
 mkdir -p build-wasm && cd build-wasm
-cmake -DTOOLCHAIN=wasm-linux-clang -DTESTING=OFF ..
+cmake -DCMAKE_TOOLCHAIN_FILE=./cmake/toolchains/wasm32-wasi.cmake -DTESTING=OFF -DWASI_SDK_PREFIX=./src/wasi-sdk-12.0 ..
 cmake --build . --parallel --target barretenberg.wasm
 cd ..

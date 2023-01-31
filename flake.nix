@@ -23,12 +23,14 @@
             [ ] ++ optional (system == "x86_64-linux") {
               name = "cross-aarch64-multiplatform";
               value = pkgs.pkgsCross.aarch64-multiplatform.callPackage ./barretenberg/barretenberg.nix {
-                llvmPackages = pkgs.llvmPackages_11;
+                stdenv = pkgs.pkgsCross.aarch64-multiplatform.llvmPackages_11.stdenv;
+                llvmPackages = pkgs.pkgsCross.aarch64-multiplatform.llvmPackages_11;
               };
             } ++ optional (system == "x86_64-darwin") {
               name = "cross-aarch64-darwin";
               value = pkgs.pkgsCross.aarch64-darwin.callPackage ./barretenberg/barretenberg.nix {
-                llvmPackages = pkgs.llvmPackages_11;
+                stdenv = pkgs.pkgsCross.aarch64-darwin.llvmPackages_11.stdenv;
+                llvmPackages = pkgs.pkgsCross.aarch64-darwin.llvmPackages_11;
               };
             }
           );
@@ -66,9 +68,7 @@
           };
           wasm32 = pkgs.pkgsCross.wasi32.callPackage ./barretenberg/barretenberg.nix {
             stdenv = pkgs.pkgsCross.wasi32.llvmPackages_12.stdenv;
-          };
-          aarch64-darwin = pkgs.pkgsCross.aarch64-darwin.callPackage ./barretenberg/barretenberg.nix {
-            llvmPackages = pkgs.pkgsCross.aarch64-darwin.llvmPackages_12;
+            llvmPackages = pkgs.pkgsCross.wasi32.llvmPackages_12;
           };
 
           default = packages.llvm11;

@@ -22,9 +22,9 @@
           (
             [ ] ++ optional (system == "x86_64-linux") {
               name = "cross-aarch64-multiplatform";
-              value = pkgs.pkgsCross.aarch64-multiplatform.callPackage ./barretenberg/barretenberg.nix {
-                stdenv = pkgs.pkgsCross.aarch64-multiplatform.llvmPackages_11.stdenv;
-                llvmPackages = pkgs.pkgsCross.aarch64-multiplatform.llvmPackages_11;
+              value = pkgs.pkgsCross.aarch64-multiplatform-musl.callPackage ./barretenberg/barretenberg.nix {
+                stdenv = pkgs.pkgsCross.aarch64-multiplatform-musl.llvmPackages_11.stdenv;
+                llvmPackages = pkgs.pkgsCross.aarch64-multiplatform-musl.llvmPackages_11;
               };
             } ++ optional (system == "x86_64-darwin") {
               name = "cross-aarch64-darwin";

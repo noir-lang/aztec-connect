@@ -26,11 +26,15 @@ cd ..
 
 # Pick native toolchain file.
 ARCH=$(uname -m)
-if [ "$OS" == "macos" ]; then
-    export BREW_PREFIX=$(brew --prefix)
+
+if [ "$(which brew)" != "" ]; then
+    BREW_PREFIX=$(brew --prefix)
+fi
+
+if [ "$BREW_PREFIX" != "" ]; then
     # Ensure we have toolchain.
-    if [ ! "$?" -eq 0 ] || [ ! -f "$BREW_PREFIX/opt/llvm@14/bin/clang++" ]; then
-        echo "Default clang not sufficient. Install homebrew, and then: brew install llvm@14 libomp clang-format"
+    if [ ! "$?" -eq 0 ] || [ ! -f "$BREW_PREFIX/opt/llvm/bin/clang++" ]; then
+        echo "Default clang not sufficient. Install homebrew, and then: brew install llvm libomp clang-format"
         exit 1
     fi
     if [ "$ARCH" = "arm64" ]; then
@@ -38,25 +42,33 @@ if [ "$OS" == "macos" ]; then
     else
         TOOLCHAIN=x86_64-darwin
     fi
-    # LDFLAGS="-L$BREW_PREFIX/opt/llvm@14/lib/c++ -Wl,-rpath,$BREW_PREFIX/opt/llvm@14/lib/c++"
-    export LDFLAGS="-L$BREW_PREFIX/opt/llvm@14/lib"
-    export CPPFLAGS="-I$BREW_PREFIX/opt/llvm@14/include"
-    export CC="$BREW_PREFIX/opt/llvm@14/bin/clang"
-    export CXX="$BREW_PREFIX/opt/llvm@14/bin/clang++"
+    # LDFLAGS="-L$BREW_PREFIX/opt/llvm/lib/c++ -Wl,-rpath,$BREW_PREFIX/opt/llvm/lib/c++"
+    export LDFLAGS="-L$BREW_PREFIX/opt/llvm/lib"
+    export CPPFLAGS="-I$BREW_PREFIX/opt/llvm/include"
+    export CC="$BREW_PREFIX/opt/llvm/bin/clang"
+    export CXX="$BREW_PREFIX/opt/llvm/bin/clang++"
 else
-    if [ "$ARCH" = "aarch64" ]; then
-        TOOLCHAIN=aarch64-linux
+    if [ "$OS" == "macos" ]; then
+        if [ "$ARCH" = "arm64" ]; then
+            TOOLCHAIN=aarch64-darwin
+        else
+            TOOLCHAIN=x86_64-darwin
+        fi
     else
-        TOOLCHAIN=x86_64-linux
+        if [ "$ARCH" = "aarch64" ]; then
+            TOOLCHAIN=aarch64-linux
+        else
+            TOOLCHAIN=x86_64-linux
+        fi
     fi
 
     if [ -z "${CC}" ]; then
         echo Set compiler with CC and CXX environment variables
-        echo eg. 
+        echo eg.
         echo "    export CC=/usr/local/opt/llvm/bin/clang"
-        echo "    export CXX=/usr/local/opt/llvm/bin/clang++"        
+        echo "    export CXX=/usr/local/opt/llvm/bin/clang++"
         declare CC=$(which clang)
-        declare CXX=$(which clang++)        
+        declare CXX=$(which clang++)
         if [ -x "$CC" ]; then
             echo "Trying with"
             echo "\$(which clang)=$CC"

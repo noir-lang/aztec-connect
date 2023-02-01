@@ -49,6 +49,26 @@ else
     else
         TOOLCHAIN=x86_64-linux
     fi
+
+    if [ -z "${CC}" ]; then
+        echo Set compiler with CC and CXX environment variables
+        echo eg. 
+        echo "    export CC=/usr/local/opt/llvm/bin/clang"
+        echo "    export CXX=/usr/local/opt/llvm/bin/clang++"        
+        declare CC=$(which clang)
+        declare CXX=$(which clang++)        
+        if [ -x "$CC" ]; then
+            echo "Trying with"
+            echo "\$(which clang)=$CC"
+            echo "\$(which clang++)=$CXX"
+        else
+            echo "No compiler found in path, please install LLVM/CLang 11, exiting now."
+            exit 1
+        fi
+    else
+        echo "Using compiler: $(which $CC)"
+    fi
+
 fi
 
 # Build native.

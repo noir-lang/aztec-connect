@@ -22,9 +22,9 @@
         crossTargets = builtins.listToAttrs
           (
             [ ] ++ optional (pkgs.hostPlatform.isx86_64 && pkgs.hostPlatform.isLinux) {
-              name = "cross-${pkgs.pkgsCross.aarch64-multiplatform.system}";
-              value = pkgs.pkgsCross.aarch64-multiplatform.callPackage barretenberg.nix_path {
-                llvmPackages = pkgs.pkgsCross.aarch64-multiplatform.llvmPackages_11;
+              name = "cross-${pkgs.pkgsCross.aarch64-multiplatform-musl.system}";
+              value = with pkgs.pkgsCross.aarch64-multiplatform-musl.pkgsLLVM; callPackage barretenberg.nix_path {
+                llvmPackages = llvmPackages_11;
               };
             } ++ optional (pkgs.hostPlatform.isx86_64 && pkgs.hostPlatform.isDarwin) {
               name = "cross-${pkgs.pkgsCross.aarch64-darwin.system}";

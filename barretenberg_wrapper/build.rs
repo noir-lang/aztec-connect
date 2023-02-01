@@ -58,11 +58,13 @@ fn select_cpp_stdlib() -> &'static str {
         OS::Apple => "c++",
     }
 }
-fn set_brew_env_var(toolchain: &'static str) {
-    // The cmake file for macos uses an environment variable
-    // to figure out where to find certain programs installed via brew
+fn set_compiler(toolchain: &'static str) {
     if toolchain == INTEL_APPLE || toolchain == ARM_APPLE {
-        env::set_var("BREW_PREFIX", find_brew_prefix());
+        env::set_var("CC", format!("{}/opt/llvm/bin/clang", find_brew_prefix()));
+        env::set_var(
+            "CXX",
+            format!("{}/opt/llvm/bin/clang++", find_brew_prefix()),
+        );
     }
 }
 
@@ -77,7 +79,7 @@ fn main() {
     // TODO: We could check move this to a bash script along with
     // TODO: checks that check that all the necessary dependencies are
     // TODO installed via llvm
-    set_brew_env_var(toolchain);
+    set_compiler(toolchain);
 
     let dst = cmake::Config::new("../barretenberg")
         .very_verbose(true)

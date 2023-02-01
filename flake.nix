@@ -15,20 +15,21 @@
           inherit system;
         };
 
+        barretenberg.nix_path = ./barretenberg/barretenberg.nix;
 
         optional = pkgs.lib.lists.optional;
 
         crossTargets = builtins.listToAttrs
           (
-            [ ] ++ optional (system == "x86_64-linux") {
-              name = "cross-aarch64-multiplatform";
-              value = pkgs.pkgsCross.aarch64-multiplatform.callPackage ./barretenberg/barretenberg.nix {
-                llvmPackages = pkgs.llvmPackages_11;
+            [ ] ++ optional (pkgs.hostPlatform.isx86_64 && pkgs.hostPlatform.isLinux) {
+              name = "cross-${pkgs.pkgsCross.aarch64-multiplatform.system}";
+              value = pkgs.pkgsCross.aarch64-multiplatform.callPackage barretenberg.nix_path {
+                llvmPackages = pkgs.pkgsCross.aarch64-multiplatform.llvmPackages_11;
               };
-            } ++ optional (system == "x86_64-darwin") {
-              name = "cross-aarch64-darwin";
-              value = pkgs.pkgsCross.aarch64-darwin.callPackage ./barretenberg/barretenberg.nix {
-                llvmPackages = pkgs.llvmPackages_11;
+            } ++ optional (pkgs.hostPlatform.isx86_64 && pkgs.hostPlatform.isDarwin) {
+              name = "cross-${pkgs.pkgsCross.aarch64-darwin.system}";
+              value = pkgs.pkgsCross.aarch64-darwin.callPackage barretenberg.nix_path {
+                llvmPackages = pkgs.pkgsCross.aarch64-darwin.llvmPackages_11;
               };
             }
           );
@@ -48,19 +49,19 @@
       in
       rec {
         packages = {
-          llvm11 = pkgs.callPackage ./barretenberg/barretenberg.nix {
+          llvm11 = pkgs.callPackage barretenberg.nix_path {
             llvmPackages = pkgs.llvmPackages_11;
           };
-          llvm12 = pkgs.callPackage ./barretenberg/barretenberg.nix {
+          llvm12 = pkgs.callPackage barretenberg.nix_path {
             llvmPackages = pkgs.llvmPackages_12;
           };
-          llvm13 = pkgs.callPackage ./barretenberg/barretenberg.nix {
+          llvm13 = pkgs.callPackage barretenberg.nix_path {
             llvmPackages = pkgs.llvmPackages_13;
           };
-          llvm14 = pkgs.callPackage ./barretenberg/barretenberg.nix {
+          llvm14 = pkgs.callPackage barretenberg.nix_path {
             llvmPackages = pkgs.llvmPackages_14;
           };
-          wasm32 = pkgs.pkgsCross.wasi32.callPackage ./barretenberg/barretenberg.nix {
+          wasm32 = pkgs.pkgsCross.wasi32.callPackage barretenberg.nix_path {
             llvmPackages = pkgs.pkgsCross.wasi32.llvmPackages_12;
           };
 

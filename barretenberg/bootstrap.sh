@@ -29,8 +29,8 @@ ARCH=$(uname -m)
 if [ "$OS" == "macos" ]; then
     export BREW_PREFIX=$(brew --prefix)
     # Ensure we have toolchain.
-    if [ ! "$?" -eq 0 ] || [ ! -f "$BREW_PREFIX/opt/llvm/bin/clang++" ]; then
-        echo "Default clang not sufficient. Install homebrew, and then: brew install llvm libomp clang-format"
+    if [ ! "$?" -eq 0 ] || [ ! -f "$BREW_PREFIX/opt/llvm@14/bin/clang++" ]; then
+        echo "Default clang not sufficient. Install homebrew, and then: brew install llvm@14 libomp clang-format"
         exit 1
     fi
     if [ "$ARCH" = "arm64" ]; then
@@ -38,6 +38,11 @@ if [ "$OS" == "macos" ]; then
     else
         TOOLCHAIN=x86_64-darwin
     fi
+    # LDFLAGS="-L$BREW_PREFIX/opt/llvm@14/lib/c++ -Wl,-rpath,$BREW_PREFIX/opt/llvm@14/lib/c++"
+    export LDFLAGS="-L$BREW_PREFIX/opt/llvm@14/lib"
+    export CPPFLAGS="-I$BREW_PREFIX/opt/llvm@14/include"
+    export CC="$BREW_PREFIX/opt/llvm@14/bin/clang"
+    export CXX="$BREW_PREFIX/opt/llvm@14/bin/clang++"
 else
     if [ "$ARCH" = "aarch64" ]; then
         TOOLCHAIN=aarch64-linux

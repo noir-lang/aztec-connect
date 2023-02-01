@@ -1,21 +1,20 @@
-name: build-linux
+name: build-mac
 
 on:
   workflow_dispatch:
   push:
 
 jobs:
-  build-linux:
-    runs-on: ubuntu-22.04
+  build-mac:
+    runs-on: macos-latest
 
     strategy:
       fail-fast: false
       matrix:
-        target:
-          [
-            # llvm11, llvm12, llvm13, llvm14, wasm32, 
-            cross-aarch64-multiplatform
-          ]
+        target: [
+          # llvm11, llvm12, llvm13, llvm14, wasm32, 
+          cross-aarch64-darwin
+        ]
 
     steps:
       - name: Checkout
@@ -34,7 +33,7 @@ jobs:
           mkdir artifacts
           cp -a ./result/. artifacts
 
-      - name: Upload ${{ matrix.artifact }}-${{ matrix.target }}
+      - name: Upload ${{ matrix.target }}
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.target }}

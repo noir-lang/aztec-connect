@@ -93,10 +93,22 @@ cd ..
 rm -rf ./src/wasi-sdk-12.0
 cd ./src
 curl -s -L https://github.com/CraneStation/wasi-sdk/releases/download/wasi-sdk-12/wasi-sdk-12.0-$OS.tar.gz | tar zxfv -
+WASI_SDK_PREFIX="$(pwd)/wasi-sdk-12.0"
 cd ..
 
 # Build WASM.
 mkdir -p build-wasm && cd build-wasm
-cmake -DCMAKE_TOOLCHAIN_FILE=./cmake/toolchains/wasm32-wasi.cmake -DTESTING=OFF -DWASI_SDK_PREFIX=./src/wasi-sdk-12.0 ..
+export CC="$WASI_SDK_PREFIX/bin/clang"
+export CXX="$WASI_SDK_PREFIX/bin/clang++"
+export AR="$WASI_SDK_PREFIX/bin/llvm-ar"
+export RANLIB="$WASI_SDK_PREFIX/bin/llvm-ranlib"
+
+cmake .. \
+    -DCMAKE_TOOLCHAIN_FILE=./cmake/toolchains/wasm32-wasi.cmake \
+    -DTESTING=OFF \
+    -DCMAKE_SYSROOT="$WASI_SDK_PREFIX/share/wasi-sysroot" \
+    -DCMAKE_STAGING_PREFIX="$WASI_SDK_PREFIX/share/wasi-sysroot" \
+    -DCMAKE_C_COMPILER_WORKS=ON \
+    -DCMAKE_CXX_COMPILER_WORKS=ON
 cmake --build . --parallel --target barretenberg.wasm
 cd ..

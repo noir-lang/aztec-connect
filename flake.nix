@@ -15,6 +15,24 @@
           inherit system;
         };
 
+
+        optional = pkgs.lib.lists.optional;
+
+        crossTargets = builtins.listToAttrs
+          (
+            [ ] ++ optional (system == "x86_64-linux") {
+              name = "cross-aarch64-multiplatform";
+              value = pkgs.pkgsCross.aarch64-multiplatform.callPackage ./barretenberg/barretenberg.nix {
+                llvmPackages = pkgs.llvmPackages_11;
+              };
+            } ++ optional (system == "x86_64-darwin") {
+              name = "cross-aarch64-darwin";
+              value = pkgs.pkgsCross.aarch64-darwin.callPackage ./barretenberg/barretenberg.nix {
+                llvmPackages = pkgs.llvmPackages_11;
+              };
+            }
+          );
+
         shellComposition = {
           inputsFrom =
             [ self.packages.${system}.${pkgs.libbarretenberg.pname} ];
@@ -27,7 +45,8 @@
             echo "Hello :)"
           '';
         };
-      in rec {
+      in
+      rec {
         packages = {
           llvm11 = pkgs.callPackage ./barretenberg/barretenberg.nix {
             llvmPackages = pkgs.llvmPackages_11;
@@ -46,15 +65,17 @@
           };
 
           default = packages.llvm11;
-        };
+        } // crossTargets;
 
         devShells.default =
           pkgs.mkShell.override { stdenv = packages.default.stdenv; }
-          shellComposition;
+            shellComposition;
 
-        devShells.wasi32 = pkgs.mkShell.override {
-          stdenv = packages.wasm32.stdenv;
-        } shellComposition;
+        devShells.wasi32 = pkgs.mkShell.override
+          {
+            stdenv = packages.wasm32.stdenv;
+          }
+          shellComposition;
 
       });
 }

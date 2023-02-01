@@ -35,7 +35,11 @@
           );
 
         shellDefaults = {
-          nativeBuildInputs = [ pkgs.starship ];
+          nativeBuildInputs = [
+            pkgs.starship
+            # TODO: This installs the wrong version of llvm tools in the wasm32 shell
+            pkgs.llvmPackages_11.llvm
+          ];
 
           shellHook = ''
             eval "$(starship init bash)"

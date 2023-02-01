@@ -34,16 +34,11 @@
             }
           );
 
-        shellComposition = {
-          inputsFrom =
-            [ self.packages.${system}.${pkgs.libbarretenberg.pname} ];
-          nativeBuildInputs = with pkgs;
-            pkgs.libbarretenberg.nativeBuildInputs ++ [ starship ];
-          buildInputs = pkgs.libbarretenberg.buildInputs;
+        shellDefaults = {
+          nativeBuildInputs = [ pkgs.starship ];
 
           shellHook = ''
             eval "$(starship init bash)"
-            echo "Hello :)"
           '';
         };
       in
@@ -68,15 +63,20 @@
           default = packages.llvm11;
         } // crossTargets;
 
-        devShells.default =
-          pkgs.mkShell.override { stdenv = packages.default.stdenv; }
-            shellComposition;
+        devShells = {
+          default = pkgs.mkShell.override { stdenv = packages.default.stdenv; }
+            ({
+              inputsFrom =
+                [ packages.default ];
+            } // shellDefaults);
 
-        devShells.wasi32 = pkgs.mkShell.override
-          {
-            stdenv = packages.wasm32.stdenv;
-          }
-          shellComposition;
-
+          wasm32 = pkgs.mkShell.override
+            {
+              stdenv = packages.wasm32.stdenv;
+            }
+            ({
+              inputsFrom = [ packages.wasm32 ];
+            } // shellDefaults);
+        };
       });
 }

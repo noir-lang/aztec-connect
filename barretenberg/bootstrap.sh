@@ -43,9 +43,8 @@ if [ "$BREW_PREFIX" != "" ]; then
     else
         TOOLCHAIN=x86_64-darwin
     fi
-    # LDFLAGS="-L$BREW_PREFIX/opt/llvm/lib/c++ -Wl,-rpath,$BREW_PREFIX/opt/llvm/lib/c++"
-    export LDFLAGS="-L$BREW_PREFIX/opt/llvm/lib"
-    export CPPFLAGS="-I$BREW_PREFIX/opt/llvm/include"
+    export LDFLAGS="-L$BREW_PREFIX/opt/libomp/lib"
+    export CPPFLAGS="-I$BREW_PREFIX/opt/libomp/include"
     export CC="$BREW_PREFIX/opt/llvm/bin/clang"
     export CXX="$BREW_PREFIX/opt/llvm/bin/clang++"
 

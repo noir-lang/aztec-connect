@@ -31,6 +31,7 @@ if [ "$(which brew)" != "" ]; then
     BREW_PREFIX=$(brew --prefix)
 fi
 
+declare CLANG_VERSION
 if [ "$BREW_PREFIX" != "" ]; then
     # Ensure we have toolchain.
     if [ ! "$?" -eq 0 ] || [ ! -f "$BREW_PREFIX/opt/llvm/bin/clang++" ]; then
@@ -47,6 +48,8 @@ if [ "$BREW_PREFIX" != "" ]; then
     export CPPFLAGS="-I$BREW_PREFIX/opt/llvm/include"
     export CC="$BREW_PREFIX/opt/llvm/bin/clang"
     export CXX="$BREW_PREFIX/opt/llvm/bin/clang++"
+
+    CLANG_VERSION="$($BREW_PREFIX/opt/llvm/bin/llvm-config --version)"
 else
     if [ "$OS" == "macos" ]; then
         if [ "$ARCH" = "arm64" ]; then
@@ -81,6 +84,19 @@ else
         echo "Using compiler: $(which $CC)"
     fi
 
+    # TODO: A little fragile. Fails in the case that llvm-config isn't installed
+    CLANG_VERSION="$(llvm-config --version)"
+fi
+
+function ver {
+    printf "%03d%03d%03d%03d" $(echo "$1" | tr '.' ' ');
+}
+
+MIN_CLANG_INCLUSIVE="10.0.0"
+MAX_CLANG_EXCLUSIVE="16.0.0"
+if [ $(ver $CLANG_VERSION) -lt $(ver $MIN_CLANG_INCLUSIVE) ] || [ $(ver $CLANG_VERSION) -gt $(ver $MAX_CLANG_EXCLUSIVE) ]; then
+    echo "Clang version $CLANG_VERSION not supported. Please install llvm v10 to v15."
+    exit 1
 fi
 
 # Build native.

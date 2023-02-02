@@ -67,125 +67,167 @@ fn set_brew_env_var(toolchain: &'static str) {
 }
 
 fn main() {
-    // Builds the project in ../barretenberg into dst
-    println!("cargo:rerun-if-changed=../barretenberg");
-
-    // Select toolchain
-    let toolchain = select_toolchain();
-
-    // Set brew environment variable if needed
-    // TODO: We could check move this to a bash script along with
-    // TODO: checks that check that all the necessary dependencies are
-    // TODO installed via llvm
-    set_brew_env_var(toolchain);
-
-    let dst = cmake::Config::new("../barretenberg")
-        .very_verbose(true)
-        .cxxflag("-fPIC")
-        .cxxflag("-fPIE")
-        .env("NUM_JOBS", num_cpus::get().to_string())
-        .define(
-            "CMAKE_TOOLCHAIN_FILE",
-            format!("./cmake/toolchains/{toolchain}.cmake"),
-        )
-        .define("TESTING", "OFF")
-        .always_configure(false)
-        .build();
-
-    // Manually link all of the libraries
+    // TODO: Passing value like that is consistent with cargo but feels hacky from nix perspective
+    let libb_env_key = "LIBBARRETENBERG";
+    let libbarretenberg = env::var(libb_env_key).unwrap_or_default();
+    let bindings;
 
     // Link C++ std lib
     println!("cargo:rustc-link-lib={}", select_cpp_stdlib());
-    // Link lib OpenMP
-    link_lib_omp(toolchain);
 
-    // println!(
-    //     "cargo:rustc-link-search={}/build/src/aztec/bb",
-    //     dst.display()
-    // );
-    // println!("cargo:rustc-link-lib=static=bb");
+    if libbarretenberg.is_empty() {
+        println!(
+            "cargo:warning={} environment variable not set. Using fixed Barretenberg path `../barretenberg`",
+            libb_env_key
+        );
+        // Builds the project in ../barretenberg into dst
+        println!("cargo:rerun-if-changed=../barretenberg");
 
-    println!(
-        "cargo:rustc-link-search={}/build/src/aztec/crypto/blake2s",
-        dst.display()
-    );
+        // Select toolchain
+        let toolchain = select_toolchain();
+
+        // Set brew environment variable if needed
+        // TODO: We could check move this to a bash script along with
+        // TODO: checks that check that all the necessary dependencies are
+        // TODO installed via llvm
+        set_brew_env_var(toolchain);
+
+        let dst = cmake::Config::new("../barretenberg")
+            .very_verbose(true)
+            .cxxflag("-fPIC")
+            .cxxflag("-fPIE")
+            .env("NUM_JOBS", num_cpus::get().to_string())
+            .define(
+                "CMAKE_TOOLCHAIN_FILE",
+                format!("./cmake/toolchains/{toolchain}.cmake"),
+            )
+            .define("TESTING", "OFF")
+            .always_configure(false)
+            .build();
+
+        // Manually link all of the libraries
+
+        // Link lib OpenMP
+        link_lib_omp(toolchain);
+
+        // println!(
+        //     "cargo:rustc-link-search={}/build/src/aztec/bb",
+        //     dst.display()
+        // );
+        // println!("cargo:rustc-link-lib=static=bb");
+
+        println!(
+            "cargo:rustc-link-search={}/build/src/aztec/crypto/blake2s",
+            dst.display()
+        );
+        println!(
+            "cargo:rustc-link-search={}/build/src/aztec/env",
+            dst.display()
+        );
+        println!(
+            "cargo:rustc-link-search={}/build/src/aztec/crypto/pedersen",
+            dst.display()
+        );
+        println!(
+            "cargo:rustc-link-search={}/build/src/aztec/ecc",
+            dst.display()
+        );
+        println!(
+            "cargo:rustc-link-search={}/build/src/aztec/crypto/keccak",
+            dst.display()
+        );
+        println!(
+            "cargo:rustc-link-search={}/build/src/aztec/crypto/schnorr",
+            dst.display()
+        );
+        println!(
+            "cargo:rustc-link-search={}/build/src/aztec/dsl",
+            dst.display()
+        );
+
+        println!(
+            "cargo:rustc-link-search={}/build/src/aztec/plonk/",
+            dst.display()
+        );
+        println!(
+            "cargo:rustc-link-search={}/build/src/aztec/polynomials/",
+            dst.display()
+        );
+        println!(
+            "cargo:rustc-link-search={}/build/src/aztec/srs/",
+            dst.display()
+        );
+        println!(
+            "cargo:rustc-link-search={}/build/src/aztec/numeric/",
+            dst.display()
+        );
+        println!(
+            "cargo:rustc-link-search={}/build/src/aztec/stdlib/primitives",
+            dst.display()
+        );
+        println!(
+            "cargo:rustc-link-search={}/build/src/aztec/stdlib/hash/sha256",
+            dst.display()
+        );
+        println!(
+            "cargo:rustc-link-search={}/build/src/aztec/stdlib/hash/blake2s",
+            dst.display()
+        );
+        println!(
+            "cargo:rustc-link-search={}/build/src/aztec/stdlib/encryption/schnorr",
+            dst.display()
+        );
+        println!(
+            "cargo:rustc-link-search={}/build/src/aztec/stdlib/hash/pedersen",
+            dst.display()
+        );
+
+        println!(
+            "cargo:rustc-link-search={}/build/src/aztec/rollup/proofs/standard_example",
+            dst.display()
+        );
+
+        // Generate bindings from a header file and place them in a bindings.rs file
+        bindings = bindgen::Builder::default()
+            // Clang args so that we can use relative include paths
+            .clang_args(&["-I../barretenberg/src/aztec", "-I../..", "-I../", "-xc++"])
+            .header("../barretenberg/src/aztec/bb/bb.hpp")
+            .generate()
+            .expect("Unable to generate bindings");
+    } else {
+        println!("cargo:rustc-link-lib=omp");
+
+        // :info isn't "cargo correct" but will show value when this errors and will help with debugging
+        println!("cargo:info={} is {}", libb_env_key, libbarretenberg);
+
+        println!("cargo:rustc-link-search={}/lib", libbarretenberg);
+
+        bindings = bindgen::Builder::default()
+            // Clang args so that we can use relative include paths
+            .clang_args(&[
+                "-xc++",
+                format!("-I{}/include/aztec", libbarretenberg.as_str()).as_str(),
+            ])
+            .header(format!(
+                // TODO: would this be cleaner with if we would have cmake install target?
+                "{}/include/aztec/bb/bb.hpp",
+                libbarretenberg.as_str()
+            ))
+            .generate()
+            .expect("Unable to generate bindings");
+    }
+
     println!("cargo:rustc-link-lib=static=crypto_blake2s");
-
-    println!(
-        "cargo:rustc-link-search={}/build/src/aztec/env",
-        dst.display()
-    );
     println!("cargo:rustc-link-lib=static=env");
-
-    println!(
-        "cargo:rustc-link-search={}/build/src/aztec/crypto/pedersen",
-        dst.display()
-    );
     println!("cargo:rustc-link-lib=static=crypto_pedersen");
-    println!(
-        "cargo:rustc-link-search={}/build/src/aztec/ecc",
-        dst.display()
-    );
     println!("cargo:rustc-link-lib=static=ecc");
-    println!(
-        "cargo:rustc-link-search={}/build/src/aztec/crypto/keccak",
-        dst.display()
-    );
     println!("cargo:rustc-link-lib=static=crypto_keccak");
-
-    println!(
-        "cargo:rustc-link-search={}/build/src/aztec/crypto/schnorr",
-        dst.display()
-    );
     println!("cargo:rustc-link-lib=static=crypto_schnorr");
-
-    println!(
-        "cargo:rustc-link-search={}/build/src/aztec/dsl",
-        dst.display()
-    );
     println!("cargo:rustc-link-lib=static=dsl");
-
-    println!(
-        "cargo:rustc-link-search={}/build/src/aztec/plonk/",
-        dst.display()
-    );
     println!("cargo:rustc-link-lib=static=plonk");
-    println!(
-        "cargo:rustc-link-search={}/build/src/aztec/polynomials/",
-        dst.display()
-    );
     println!("cargo:rustc-link-lib=static=polynomials");
-    println!(
-        "cargo:rustc-link-search={}/build/src/aztec/srs/",
-        dst.display()
-    );
     println!("cargo:rustc-link-lib=static=srs");
-    println!(
-        "cargo:rustc-link-search={}/build/src/aztec/numeric/",
-        dst.display()
-    );
     println!("cargo:rustc-link-lib=static=numeric");
-
-    println!(
-        "cargo:rustc-link-search={}/build/src/aztec/stdlib/primitives",
-        dst.display()
-    );
-    println!(
-        "cargo:rustc-link-search={}/build/src/aztec/stdlib/hash/sha256",
-        dst.display()
-    );
-    println!(
-        "cargo:rustc-link-search={}/build/src/aztec/stdlib/hash/blake2s",
-        dst.display()
-    );
-    println!(
-        "cargo:rustc-link-search={}/build/src/aztec/stdlib/encryption/schnorr",
-        dst.display()
-    );
-    println!(
-        "cargo:rustc-link-search={}/build/src/aztec/stdlib/hash/pedersen",
-        dst.display()
-    );
 
     println!("cargo:rustc-link-lib=static=stdlib_primitives");
     println!("cargo:rustc-link-lib=static=stdlib_sha256");
@@ -193,19 +235,8 @@ fn main() {
     println!("cargo:rustc-link-lib=static=stdlib_schnorr");
     println!("cargo:rustc-link-lib=static=stdlib_pedersen");
 
-    println!(
-        "cargo:rustc-link-search={}/build/src/aztec/rollup/proofs/standard_example",
-        dst.display()
-    );
     println!("cargo:rustc-link-lib=static=rollup_proofs_standard_example");
 
-    // Generate bindings from a header file and place them in a bindings.rs file
-    let bindings = bindgen::Builder::default()
-        // Clang args so that we can use relative include paths
-        .clang_args(&["-I../barretenberg/src/aztec", "-I../..", "-I../", "-xc++"])
-        .header("../barretenberg/src/aztec/bb/bb.hpp")
-        .generate()
-        .expect("Unable to generate bindings");
     let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
     bindings
         .write_to_file(out_path.join("bindings.rs"))

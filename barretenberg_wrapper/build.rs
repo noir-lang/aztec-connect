@@ -1,4 +1,4 @@
-use std::{env, path::PathBuf};
+use std::{env, path::PathBuf, process::Command};
 // These are the operating systems that are supported
 pub enum OS {
     Linux,
@@ -16,6 +16,11 @@ const INTEL_APPLE: &str = "x86_64-darwin";
 const INTEL_LINUX: &str = "x86_64-linux";
 const ARM_APPLE: &str = "aarch64-darwin";
 const ARM_LINUX: &str = "aarch64-linux";
+
+const CC_ENV_KEY: &&str = &"CC";
+const CXX_ENV_KEY: &&str = &"CXX";
+
+const LIBB_ENV_KEY: &str = "LIBBARRETENBERG";
 
 fn select_toolchain() -> &'static str {
     let arch = select_arch();
@@ -58,20 +63,56 @@ fn select_cpp_stdlib() -> &'static str {
         OS::Apple => "c++",
     }
 }
+
+fn which_clang(clang_command: &'static str) -> Option<String> {
+    let which_clang_command = Command::new("which")
+        .arg(clang_command)
+        .output()
+        .expect("Failed to execute which clang commang");
+
+    if which_clang_command.status.success() {
+        let path =
+            String::from_utf8(which_clang_command.stdout).expect("Invalid UTF-8 output from which");
+        Some(path.trim().to_owned())
+    } else {
+        None
+    }
+}
+
 fn set_compiler(toolchain: &'static str) {
-    if toolchain == INTEL_APPLE || toolchain == ARM_APPLE {
-        env::set_var("CC", format!("{}/opt/llvm/bin/clang", find_brew_prefix()));
-        env::set_var(
-            "CXX",
-            format!("{}/opt/llvm/bin/clang++", find_brew_prefix()),
-        );
+    match toolchain {
+        INTEL_APPLE | ARM_APPLE => {
+            env::set_var(
+                CC_ENV_KEY,
+                format!("{}/opt/llvm/bin/clang", find_brew_prefix()),
+            );
+            env::set_var(
+                "CXX",
+                format!("{}/opt/llvm/bin/clang++", find_brew_prefix()),
+            );
+        }
+        INTEL_LINUX | ARM_LINUX => {
+            if let Ok(val) = env::var(CC_ENV_KEY) {
+                println!("Using environment defined compiler $CC={}", val)
+            } else {
+                env::set_var(
+                    CC_ENV_KEY,
+                    which_clang("clang").expect("No clang found in $CC or $PATH, set $CC or $PATH to contain clang compier v.10..14"),
+                );
+                env::set_var(
+                    CXX_ENV_KEY,
+                    which_clang("clang++").expect("No clang found in $CXX or $PATH, set $CXX or $PATH to contain clang compier v.10..14"),
+                );
+            }
+        }
+        &_ => unimplemented!("Finding compiler for toolchain {} failed, ensure clanng v10..14 installed, and $CC, $CXX are set accordingly", toolchain),
     }
 }
 
 fn main() {
     // TODO: Passing value like that is consistent with cargo but feels hacky from nix perspective
-    let libb_env_key = "LIBBARRETENBERG";
-    let libbarretenberg = env::var(libb_env_key).unwrap_or_default();
+
+    let libbarretenberg = env::var(LIBB_ENV_KEY).unwrap_or_default();
     let bindings;
 
     // Link C++ std lib
@@ -79,8 +120,8 @@ fn main() {
 
     if libbarretenberg.is_empty() {
         println!(
-            "cargo:warning={} environment variable not set. Using fixed Barretenberg path `../barretenberg`",
-            libb_env_key
+            "cargo:info={} environment variable not set. Using fixed Barretenberg path `../barretenberg`",
+            LIBB_ENV_KEY
         );
         // Builds the project in ../barretenberg into dst
         println!("cargo:rerun-if-changed=../barretenberg");
@@ -200,7 +241,7 @@ fn main() {
         println!("cargo:rustc-link-lib=omp");
 
         // :info isn't "cargo correct" but will show value when this errors and will help with debugging
-        println!("cargo:info={} is {}", libb_env_key, libbarretenberg);
+        println!("cargo:info={} is {}", LIBB_ENV_KEY, libbarretenberg);
 
         println!("cargo:rustc-link-search={}/lib", libbarretenberg);
 

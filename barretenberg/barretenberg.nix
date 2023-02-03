@@ -11,9 +11,6 @@ llvmPackages.stdenv.mkDerivation {
 
   src = ./.;
 
-  # dontUseCmakeConfigure as per https://nixos.org/manual/nixpkgs/stable/#cmake
-  # dontUseCmakeConfigure = true;
-
   nativeBuildInputs = [ cmake ]
     ++ optionals targetPlatform.isWasm [ (callPackage ./wasilibc.nix { }) ];
 
@@ -46,9 +43,9 @@ llvmPackages.stdenv.mkDerivation {
       cp -a bin/. $out/bin
     '' else ''
       mkdir -p $out/lib
-      mkdir -p $out/headers
+      mkdir -p $out/include
       find src -name \*.a -exec cp {} $out/lib \;
       cd $src/src
-      find aztec -name \*.hpp -exec cp --parents --no-preserve=mode,ownership {} $out/headers \;
+      find aztec \( -name "*.hpp" -o -name "*.h" \) -exec cp --parents --no-preserve=mode,ownership {} $out/include \;
     '';
 }

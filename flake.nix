@@ -34,16 +34,15 @@
             }
           );
 
-        shellComposition = {
-          inputsFrom =
-            [ self.packages.${system}.${pkgs.libbarretenberg.pname} ];
-          nativeBuildInputs = with pkgs;
-            pkgs.libbarretenberg.nativeBuildInputs ++ [ starship ];
-          buildInputs = pkgs.libbarretenberg.buildInputs;
+        shellDefaults = {
+          nativeBuildInputs = [
+            pkgs.starship
+            # TODO: This installs the wrong version of llvm tools in the wasm32 shell
+            pkgs.llvmPackages_11.llvm
+          ];
 
           shellHook = ''
             eval "$(starship init bash)"
-            echo "Hello :)"
           '';
         };
       in
@@ -68,15 +67,20 @@
           default = packages.llvm11;
         } // crossTargets;
 
-        devShells.default =
-          pkgs.mkShell.override { stdenv = packages.default.stdenv; }
-            shellComposition;
+        devShells = {
+          default = pkgs.mkShell.override { stdenv = packages.default.stdenv; }
+            ({
+              inputsFrom =
+                [ packages.default ];
+            } // shellDefaults);
 
-        devShells.wasi32 = pkgs.mkShell.override
-          {
-            stdenv = packages.wasm32.stdenv;
-          }
-          shellComposition;
-
+          wasm32 = pkgs.mkShell.override
+            {
+              stdenv = packages.wasm32.stdenv;
+            }
+            ({
+              inputsFrom = [ packages.wasm32 ];
+            } // shellDefaults);
+        };
       });
 }

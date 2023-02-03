@@ -26,11 +26,16 @@ cd ..
 
 # Pick native toolchain file.
 ARCH=$(uname -m)
-if [ "$OS" == "macos" ]; then
-    export BREW_PREFIX=$(brew --prefix)
+
+if [ "$(which brew)" != "" ]; then
+    BREW_PREFIX=$(brew --prefix)
+fi
+
+declare CLANG_VERSION
+if [ "$BREW_PREFIX" != "" ]; then
     # Ensure we have toolchain.
-    if [ ! "$?" -eq 0 ] || [ ! -f "$BREW_PREFIX/opt/llvm@14/bin/clang++" ]; then
-        echo "Default clang not sufficient. Install homebrew, and then: brew install llvm@14 libomp clang-format"
+    if [ ! "$?" -eq 0 ] || [ ! -f "$BREW_PREFIX/opt/llvm/bin/clang++" ]; then
+        echo "Default clang not sufficient. Install homebrew, and then: brew install llvm libomp clang-format"
         exit 1
     fi
     if [ "$ARCH" = "arm64" ]; then
@@ -38,25 +43,34 @@ if [ "$OS" == "macos" ]; then
     else
         TOOLCHAIN=x86_64-darwin
     fi
-    # LDFLAGS="-L$BREW_PREFIX/opt/llvm@14/lib/c++ -Wl,-rpath,$BREW_PREFIX/opt/llvm@14/lib/c++"
-    export LDFLAGS="-L$BREW_PREFIX/opt/llvm@14/lib"
-    export CPPFLAGS="-I$BREW_PREFIX/opt/llvm@14/include"
-    export CC="$BREW_PREFIX/opt/llvm@14/bin/clang"
-    export CXX="$BREW_PREFIX/opt/llvm@14/bin/clang++"
+    export LDFLAGS="-L$BREW_PREFIX/opt/libomp/lib"
+    export CPPFLAGS="-I$BREW_PREFIX/opt/libomp/include"
+    export CC="$BREW_PREFIX/opt/llvm/bin/clang"
+    export CXX="$BREW_PREFIX/opt/llvm/bin/clang++"
+
+    CLANG_VERSION="$($BREW_PREFIX/opt/llvm/bin/llvm-config --version)"
 else
-    if [ "$ARCH" = "aarch64" ]; then
-        TOOLCHAIN=aarch64-linux
+    if [ "$OS" == "macos" ]; then
+        if [ "$ARCH" = "arm64" ]; then
+            TOOLCHAIN=aarch64-darwin
+        else
+            TOOLCHAIN=x86_64-darwin
+        fi
     else
-        TOOLCHAIN=x86_64-linux
+        if [ "$ARCH" = "aarch64" ]; then
+            TOOLCHAIN=aarch64-linux
+        else
+            TOOLCHAIN=x86_64-linux
+        fi
     fi
 
     if [ -z "${CC}" ]; then
         echo Set compiler with CC and CXX environment variables
-        echo eg. 
+        echo eg.
         echo "    export CC=/usr/local/opt/llvm/bin/clang"
-        echo "    export CXX=/usr/local/opt/llvm/bin/clang++"        
+        echo "    export CXX=/usr/local/opt/llvm/bin/clang++"
         declare CC=$(which clang)
-        declare CXX=$(which clang++)        
+        declare CXX=$(which clang++)
         if [ -x "$CC" ]; then
             echo "Trying with"
             echo "\$(which clang)=$CC"
@@ -69,6 +83,19 @@ else
         echo "Using compiler: $(which $CC)"
     fi
 
+    # TODO: A little fragile. Fails in the case that llvm-config isn't installed
+    CLANG_VERSION="$(llvm-config --version)"
+fi
+
+function ver {
+    printf "%03d%03d%03d%03d" $(echo "$1" | tr '.' ' ');
+}
+
+MIN_CLANG_INCLUSIVE="10.0.0"
+MAX_CLANG_EXCLUSIVE="16.0.0"
+if [ $(ver $CLANG_VERSION) -lt $(ver $MIN_CLANG_INCLUSIVE) ] || [ $(ver $CLANG_VERSION) -gt $(ver $MAX_CLANG_EXCLUSIVE) ]; then
+    echo "Clang version $CLANG_VERSION not supported. Please install llvm v10 to v15."
+    exit 1
 fi
 
 # Build native.
@@ -81,10 +108,22 @@ cd ..
 rm -rf ./src/wasi-sdk-12.0
 cd ./src
 curl -s -L https://github.com/CraneStation/wasi-sdk/releases/download/wasi-sdk-12/wasi-sdk-12.0-$OS.tar.gz | tar zxfv -
+WASI_SDK_PREFIX="$(pwd)/wasi-sdk-12.0"
 cd ..
 
 # Build WASM.
 mkdir -p build-wasm && cd build-wasm
-cmake -DCMAKE_TOOLCHAIN_FILE=./cmake/toolchains/wasm32-wasi.cmake -DTESTING=OFF -DWASI_SDK_PREFIX=./src/wasi-sdk-12.0 ..
+export CC="$WASI_SDK_PREFIX/bin/clang"
+export CXX="$WASI_SDK_PREFIX/bin/clang++"
+export AR="$WASI_SDK_PREFIX/bin/llvm-ar"
+export RANLIB="$WASI_SDK_PREFIX/bin/llvm-ranlib"
+
+cmake .. \
+    -DCMAKE_TOOLCHAIN_FILE=./cmake/toolchains/wasm32-wasi.cmake \
+    -DTESTING=OFF \
+    -DCMAKE_SYSROOT="$WASI_SDK_PREFIX/share/wasi-sysroot" \
+    -DCMAKE_STAGING_PREFIX="$WASI_SDK_PREFIX/share/wasi-sysroot" \
+    -DCMAKE_C_COMPILER_WORKS=ON \
+    -DCMAKE_CXX_COMPILER_WORKS=ON
 cmake --build . --parallel --target barretenberg.wasm
 cd ..

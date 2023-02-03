@@ -1,18 +1,3 @@
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR wasm32)
 set(CMAKE_SYSTEM_VERSION 1)
-
-if (WASI_SDK_PREFIX)
-    cmake_path(ABSOLUTE_PATH WASI_SDK_PREFIX NORMALIZE)
-
-    set(CMAKE_C_COMPILER ${WASI_SDK_PREFIX}/bin/clang)
-    set(CMAKE_CXX_COMPILER ${WASI_SDK_PREFIX}/bin/clang++)
-    set(CMAKE_AR ${WASI_SDK_PREFIX}/bin/llvm-ar)
-    set(CMAKE_RANLIB ${WASI_SDK_PREFIX}/bin/llvm-ranlib)
-
-    set(CMAKE_SYSROOT ${WASI_SDK_PREFIX}/share/wasi-sysroot)
-    set(CMAKE_STAGING_PREFIX ${WASI_SDK_PREFIX}/share/wasi-sysroot)
-
-    set(CMAKE_C_COMPILER_WORKS ON)
-    set(CMAKE_CXX_COMPILER_WORKS ON)
-endif()

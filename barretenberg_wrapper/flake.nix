@@ -53,6 +53,10 @@
           # Bindegn needs this
           LIBCLANG_PATH = "${pkgs.llvmPackages.libclang.lib}/lib";
 
+          BINDGEN_EXTRA_CLANG_ARGS = "-I${libbarretenberg}/include/aztec -L${libbarretenberg}";
+
+          RUSTFLAGS = "-L${libbarretenberg}/lib -lomp";
+
           buildInputs = [
             pkgs.llvmPackages.openmp            
             libbarretenberg

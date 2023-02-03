@@ -20,7 +20,7 @@ const ARM_LINUX: &str = "aarch64-linux";
 const CC_ENV_KEY: &&str = &"CC";
 const CXX_ENV_KEY: &&str = &"CXX";
 
-const LIBB_ENV_KEY: &str = "LIBBARRETENBERG";
+const BINGDEN_ENV_KEY: &str = "BINDGEN_EXTRA_CLANG_ARGS";
 
 fn select_toolchain() -> &'static str {
     let arch = select_arch();
@@ -112,16 +112,16 @@ fn set_compiler(toolchain: &'static str) {
 fn main() {
     // TODO: Passing value like that is consistent with cargo but feels hacky from nix perspective
 
-    let libbarretenberg = env::var(LIBB_ENV_KEY).unwrap_or_default();
+    let bindgen_flags = env::var(BINGDEN_ENV_KEY).unwrap_or_default();
     let bindings;
 
     // Link C++ std lib
     println!("cargo:rustc-link-lib={}", select_cpp_stdlib());
 
-    if libbarretenberg.is_empty() {
+    if bindgen_flags.is_empty() {
         println!(
             "cargo:info={} environment variable not set. Using fixed Barretenberg path `../barretenberg`",
-            LIBB_ENV_KEY
+            BINGDEN_ENV_KEY
         );
         // Builds the project in ../barretenberg into dst
         println!("cargo:rerun-if-changed=../barretenberg");
@@ -238,24 +238,10 @@ fn main() {
             .generate()
             .expect("Unable to generate bindings");
     } else {
-        println!("cargo:rustc-link-lib=omp");
-
-        // :info isn't "cargo correct" but will show value when this errors and will help with debugging
-        println!("cargo:info={} is {}", LIBB_ENV_KEY, libbarretenberg);
-
-        println!("cargo:rustc-link-search={}/lib", libbarretenberg);
-
         bindings = bindgen::Builder::default()
             // Clang args so that we can use relative include paths
-            .clang_args(&[
-                "-xc++",
-                format!("-I{}/include/aztec", libbarretenberg.as_str()).as_str(),
-            ])
-            .header(format!(
-                // TODO: would this be cleaner with if we would have cmake install target?
-                "{}/include/aztec/bb/bb.hpp",
-                libbarretenberg.as_str()
-            ))
+            .clang_args(&["-xc++"])
+            .header_contents("wrapper.h", "#include <aztec/bb/bb.hpp>")
             .generate()
             .expect("Unable to generate bindings");
     }

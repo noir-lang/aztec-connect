@@ -11,10 +11,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target:
-          [
-            # llvm11, llvm12, llvm13, llvm14, wasm32, 
-            cross-aarch64-linux
+        target: [
+            # llvm11, llvm12, llvm13, llvm14, wasm32,
+            cross-aarch64-linux,
           ]
 
     steps:
@@ -24,8 +23,9 @@ jobs:
       - uses: cachix/install-nix-action@v18
         with:
           nix_path: nixpkgs=channel:nixos-22.11
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build ${{ matrix.target }}
+      - name: Build barretenberg on ${{ matrix.target }}
         run: |
           nix build -L .#${{ matrix.target }}
 
@@ -40,3 +40,23 @@ jobs:
           name: ${{ matrix.target }}
           path: ./artifacts/
           retention-days: 3
+
+  bb_wrapper:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - uses: cachix/install-nix-action@v18
+        with:
+          nix_path: nixpkgs=channel:nixos-22.11
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build barretenberg_wrapper
+        working-directory: ./barretenberg_wrapper
+        # This removes the lockfile as a workaround to relative file paths causing a failure in flakes
+        run: |
+          rm flake.lock
+          nix build -L
+          ./result/bin/barretenberg_wrapper

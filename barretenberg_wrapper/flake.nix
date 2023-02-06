@@ -47,20 +47,17 @@
 
           doCheck = false;
 
-
-          LIBBARRETENBERG = libbarretenberg;
-
-          # Bindegn needs this
+          # Bindegn needs these
           LIBCLANG_PATH = "${pkgs.llvmPackages.libclang.lib}/lib";
+          BINDGEN_EXTRA_CLANG_ARGS = "-I${libbarretenberg}/include/aztec -L${libbarretenberg}";
+          RUSTFLAGS = "-L${libbarretenberg}/lib -lomp";
 
           buildInputs = [
-            pkgs.llvmPackages.openmp            
+            pkgs.llvmPackages.openmp
             libbarretenberg
           ] ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [
             pkgs.libiconv
           ];
-
-          
         };
       in rec {
         checks = { inherit barretenberg_wrapper_crate; };
@@ -80,7 +77,7 @@
 
           buildInputs = packages.default.buildInputs ;
 
-          nativeBuildInputs = with pkgs; [             
+          nativeBuildInputs = with pkgs; [
             cargo
             rustc ];
         };

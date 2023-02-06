@@ -23,6 +23,7 @@ jobs:
       - uses: cachix/install-nix-action@v18
         with:
           nix_path: nixpkgs=channel:nixos-22.11
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build barretenberg on ${{ matrix.target }}
         run: |
@@ -50,6 +51,7 @@ jobs:
       - uses: cachix/install-nix-action@v18
         with:
           nix_path: nixpkgs=channel:nixos-22.11
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build barretenberg_wrapper
         working-directory: ./barretenberg_wrapper

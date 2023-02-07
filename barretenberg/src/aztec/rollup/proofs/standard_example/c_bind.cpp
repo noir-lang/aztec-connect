@@ -61,6 +61,44 @@ WASM_EXPORT bool standard_example__verify_proof(uint8_t* proof, uint32_t length)
 }
 }
 
+extern "C" {
+
+WASM_EXPORT size_t c_init_proving_key(uint8_t const* constraint_system_buf, uint8_t const** pk_buf)
+{
+    return rollup::proofs::standard_example::c_init_proving_key(constraint_system_buf, pk_buf);
+}
+
+WASM_EXPORT size_t c_init_verification_key(void* pippenger,
+                                           uint8_t const* g2x,
+                                           uint8_t const* pk_buf,
+                                           uint8_t const** vk_buf)
+{
+    return rollup::proofs::standard_example::c_init_verification_key(pippenger, g2x, pk_buf, vk_buf);
+}
+
+WASM_EXPORT size_t c_new_proof(void* pippenger,
+                               uint8_t const* g2x,
+                               uint8_t const* pk_buf,
+                               uint8_t const* constraint_system_buf,
+                               uint8_t const* witness_buf,
+                               uint8_t** proof_data_buf)
+{
+    return rollup::proofs::standard_example::c_new_proof(
+        pippenger, g2x, pk_buf, constraint_system_buf, witness_buf, proof_data_buf);
+}
+
+WASM_EXPORT bool c_verify_proof(void* pippenger,
+                                uint8_t const* g2x,
+                                uint8_t const* vk_buf,
+                                uint8_t const* constraint_system_buf,
+                                uint8_t* proof,
+                                uint32_t length)
+{
+    return rollup::proofs::standard_example::c_verify_proof(
+        pippenger, g2x, vk_buf, constraint_system_buf, proof, length);
+}
+}
+
 // standard format stuff
 
 using namespace waffle;

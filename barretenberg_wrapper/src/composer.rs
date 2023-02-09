@@ -67,11 +67,15 @@ pub unsafe fn verify(
     )
 }
 
+/// # Safety
+/// cs_prt must point to a valid constraints system structure of type standard_format
 pub unsafe fn init_proving_key(cs_ptr: &[u8], pk_data_ptr: *mut *mut u8) -> u64 {
     let cs_ptr = cs_ptr.as_ptr() as *const u8;
     c_init_proving_key(cs_ptr, pk_data_ptr as *const *mut u8 as *mut *const u8)
 }
 
+/// # Safety
+/// pippenger must point to a valid Pippenger object
 pub unsafe fn init_verification_key(
     pippenger: *mut ::std::os::raw::c_void,
     g2_ptr: &[u8],
@@ -86,6 +90,8 @@ pub unsafe fn init_verification_key(
     )
 }
 
+/// # Safety
+/// pippenger must point to a valid Pippenger object
 pub unsafe fn create_proof_with_pk(
     pippenger: *mut ::std::os::raw::c_void,
     g2_ptr: &[u8],
@@ -106,6 +112,8 @@ pub unsafe fn create_proof_with_pk(
     )
 }
 
+/// # Safety
+/// cs_prt must point to a valid constraints system structure of type standard_format
 pub unsafe fn verify_with_vk(g2_ptr: &[u8], vk_ptr: &[u8], cs_ptr: &[u8], proof: &[u8]) -> bool {
     let proof_ptr = proof.as_ptr() as *const u8;
 

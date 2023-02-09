@@ -106,17 +106,10 @@ pub unsafe fn create_proof_with_pk(
     )
 }
 
-pub unsafe fn verify_with_vk(
-    pippenger: *mut ::std::os::raw::c_void,
-    g2_ptr: &[u8],
-    vk_ptr: &[u8],
-    cs_ptr: &[u8],
-    proof: &[u8],
-) -> bool {
+pub unsafe fn verify_with_vk(g2_ptr: &[u8], vk_ptr: &[u8], cs_ptr: &[u8], proof: &[u8]) -> bool {
     let proof_ptr = proof.as_ptr() as *const u8;
 
     c_verify_proof(
-        pippenger,
         g2_ptr.as_ptr() as *const u8,
         vk_ptr.as_ptr() as *const u8,
         cs_ptr.as_ptr() as *const u8,

@@ -214,10 +214,12 @@ size_t c_init_verification_key(void* pippenger, uint8_t const* g2x, uint8_t cons
 
     verification_key->composer_type = waffle::ComposerType::TURBO;
 
-    auto vk_data = to_buffer(*verification_key);
-    *vk_buf = vk_data.data();
+    auto buffer = to_buffer(*verification_key);
+    auto raw_buf = (uint8_t*)malloc(buffer.size());
+    memcpy(raw_buf, (void*)buffer.data(), buffer.size());
+    *vk_buf = raw_buf;
 
-    return vk_data.size();
+    return buffer.size();
 }
 
 size_t c_new_proof(void* pippenger,
@@ -251,28 +253,20 @@ size_t c_new_proof(void* pippenger,
     return proof_data.size();
 }
 
-bool c_verify_proof(void* pippenger,
-                    uint8_t const* g2x,
-                    uint8_t const* vk_buf,
-                    uint8_t const* constraint_system_buf,
-                    uint8_t* proof,
-                    uint32_t length)
+bool c_verify_proof(
+    uint8_t const* g2x, uint8_t const* vk_buf, uint8_t const* constraint_system_buf, uint8_t* proof, uint32_t length)
 {
     bool verified = false;
 
 #ifndef __wasm__
     try {
 #endif
-
         auto constraint_system = from_buffer<waffle::standard_format>(constraint_system_buf);
 
-        auto crs_factory = std::make_unique<waffle::PippengerReferenceStringFactory>(
-            reinterpret_cast<scalar_multiplication::Pippenger*>(pippenger), g2x);
-
+        auto crs = std::make_shared<waffle::VerifierMemReferenceString>(g2x);
         waffle::verification_key_data vk_data;
         read(vk_buf, vk_data);
-        auto verification_key =
-            std::make_shared<waffle::verification_key>(std::move(vk_data), crs_factory->get_verifier_crs());
+        auto verification_key = std::make_shared<waffle::verification_key>(std::move(vk_data), crs);
 
         auto composer = create_circuit(constraint_system, nullptr, verification_key);
         waffle::plonk_proof pp = { std::vector<uint8_t>(proof, proof + length) };

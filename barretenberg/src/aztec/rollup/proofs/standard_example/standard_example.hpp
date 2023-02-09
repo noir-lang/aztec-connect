@@ -53,12 +53,8 @@ size_t c_new_proof(void* pippenger,
                    uint8_t const* constraint_system_buf,
                    uint8_t const* witness_buf,
                    uint8_t** proof_data_buf);
-bool c_verify_proof(void* pippenger,
-                    uint8_t const* g2x,
-                    uint8_t const* vk_buf,
-                    uint8_t const* constraint_system_buf,
-                    uint8_t* proof,
-                    uint32_t length);
+bool c_verify_proof(
+    uint8_t const* g2x, uint8_t const* vk_buf, uint8_t const* constraint_system_buf, uint8_t* proof, uint32_t length);
 
 } // namespace standard_example
 } // namespace proofs

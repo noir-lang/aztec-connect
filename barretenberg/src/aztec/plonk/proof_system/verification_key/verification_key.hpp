@@ -84,6 +84,17 @@ struct verification_key {
     size_t program_width = 3;
 };
 
+template <typename B> inline void read(B& buf, verification_key const& key)
+{
+    using serialize::read;
+    read(buf, key.composer_type);
+    read(buf, static_cast<uint32_t>(key.n));
+    read(buf, static_cast<uint32_t>(key.num_public_inputs));
+    read(buf, key.constraint_selectors);
+    read(buf, key.permutation_selectors);
+    read(buf, key.contains_recursive_proof);
+    read(buf, key.recursive_proof_public_input_indices);
+}
 template <typename B> inline void write(B& buf, verification_key const& key)
 {
     using serialize::write;

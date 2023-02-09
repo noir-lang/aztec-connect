@@ -68,7 +68,7 @@ fn which_clang(clang_command: &'static str) -> Option<String> {
     let which_clang_command = Command::new("which")
         .arg(clang_command)
         .output()
-        .expect("Failed to execute which clang commang");
+        .expect("Failed to execute which clang command");
 
     if which_clang_command.status.success() {
         let path =
@@ -87,7 +87,7 @@ fn set_compiler(toolchain: &'static str) {
                 format!("{}/opt/llvm/bin/clang", find_brew_prefix()),
             );
             env::set_var(
-                "CXX",
+                CXX_ENV_KEY,
                 format!("{}/opt/llvm/bin/clang++", find_brew_prefix()),
             );
         }
@@ -243,8 +243,8 @@ fn main() {
             .clang_args(&["-xc++"])
             .header_contents("wrapper.h", "#include <aztec/bb/bb.hpp>")
             .generate()
-            .expect("Unable to generate bindings");
-    }
+            .expect("Unable to generate bindings")
+    };
 
     println!("cargo:rustc-link-lib=static=crypto_blake2s");
     println!("cargo:rustc-link-lib=static=env");

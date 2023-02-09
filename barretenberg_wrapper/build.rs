@@ -86,6 +86,8 @@ fn main() {
         .env("NUM_JOBS", num_cpus::get().to_string())
         .define("TOOLCHAIN", toolchain)
         .define("TESTING", "OFF")
+        .define("DISABLE_ASM", "ON")
+        .define("DISABLE_ADX", "ON")
         .always_configure(false)
         .build();
 

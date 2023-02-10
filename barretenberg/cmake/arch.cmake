@@ -6,6 +6,5 @@ if(WASM)
 endif()
 
 if(NOT WASM AND NOT APPLE AND NOT ARM) 
-#    add_compile_options(-march=skylake-avx512) # Required for AVX-512 extensions
     add_compile_options(-march=skylake)
 endif()

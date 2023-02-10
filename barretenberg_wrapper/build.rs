@@ -92,8 +92,8 @@ fn set_compiler(toolchain: &'static str) {
             );
         }
         INTEL_LINUX | ARM_LINUX => {
-            if let Ok(val) = env::var(CC_ENV_KEY) {
-                println!("Using environment defined compiler $CC={}", val)
+            if let Ok(cc) = env::var(CC_ENV_KEY) {
+                println!("Using environment defined compiler $CC={cc}")
             } else {
                 env::set_var(
                     CC_ENV_KEY,
@@ -113,15 +113,13 @@ fn main() {
     // TODO: Passing value like that is consistent with cargo but feels hacky from nix perspective
 
     let bindgen_flags = env::var(BINGDEN_ENV_KEY).unwrap_or_default();
-    let bindings;
 
     // Link C++ std lib
     println!("cargo:rustc-link-lib={}", select_cpp_stdlib());
 
-    if bindgen_flags.is_empty() {
+    let bindings = if bindgen_flags.is_empty() {
         println!(
-            "cargo:info={} environment variable not set. Using fixed Barretenberg path `../barretenberg`",
-            BINGDEN_ENV_KEY
+            "cargo:info={BINGDEN_ENV_KEY} environment variable not set. Using fixed Barretenberg path `../barretenberg`"
         );
         // Builds the project in ../barretenberg into dst
         println!("cargo:rerun-if-changed=../barretenberg");
@@ -231,14 +229,14 @@ fn main() {
         );
 
         // Generate bindings from a header file and place them in a bindings.rs file
-        bindings = bindgen::Builder::default()
+        bindgen::Builder::default()
             // Clang args so that we can use relative include paths
             .clang_args(&["-I../barretenberg/src/aztec", "-I../..", "-I../", "-xc++"])
             .header("../barretenberg/src/aztec/bb/bb.hpp")
             .generate()
-            .expect("Unable to generate bindings");
+            .expect("Unable to generate bindings")
     } else {
-        bindings = bindgen::Builder::default()
+        bindgen::Builder::default()
             // Clang args so that we can use relative include paths
             .clang_args(&["-xc++"])
             .header_contents("wrapper.h", "#include <aztec/bb/bb.hpp>")
@@ -277,17 +275,17 @@ fn link_lib_omp(toolchain: &'static str) {
     match toolchain {
         INTEL_LINUX | ARM_LINUX => {
             let llvm_dir = find_llvm_linux_path();
-            println!("cargo:rustc-link-search={}/lib", llvm_dir)
+            println!("cargo:rustc-link-search={llvm_dir}/lib")
         }
         INTEL_APPLE => {
             let brew_prefix = find_brew_prefix();
-            println!("cargo:rustc-link-search={}/opt/libomp/lib", brew_prefix)
+            println!("cargo:rustc-link-search={brew_prefix}/opt/libomp/lib")
         }
         ARM_APPLE => {
             let brew_prefix = find_brew_prefix();
-            println!("cargo:rustc-link-search={}/opt/libomp/lib", brew_prefix)
+            println!("cargo:rustc-link-search={brew_prefix}/opt/libomp/lib")
         }
-        &_ => unimplemented!("lomp linking of {} is not supported", toolchain),
+        &_ => unimplemented!("lomp linking of {toolchain} is not supported"),
     }
     match toolchain {
         ARM_LINUX | INTEL_APPLE | ARM_APPLE => {

@@ -77,6 +77,8 @@
 
           buildInputs = packages.default.buildInputs ;
 
+          BINDGEN_EXTRA_CLANG_ARGS = "-I${libbarretenberg}/include/aztec -L${libbarretenberg}";
+
           nativeBuildInputs = with pkgs; [
             cargo
             rustc ];

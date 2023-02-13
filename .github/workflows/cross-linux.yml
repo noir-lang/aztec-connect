@@ -12,7 +12,8 @@ jobs:
       fail-fast: false
       matrix:
         target: [
-            # llvm11, llvm12, llvm13, llvm14, wasm32,
+            # llvm11, llvm12, llvm13, 
+            llvm14, wasm32,
             cross-aarch64-linux,
           ]
 
@@ -41,6 +42,19 @@ jobs:
           path: ./artifacts/
           retention-days: 3
 
+      - name: Package artifacts
+        run: |
+          7z a -ttar -so -an ./artifacts/* | 7z a -si ./libbarretenberg-${{ matrix.target }}.tar.gz
+
+      - name: Upload binaries
+        uses: svenstaro/upload-release-action@v2
+        # if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        with:
+          file: ./libbarretenberg-${{ matrix.target }}.tar.gz
+          asset_name: libbarretenberg-${{ matrix.target }}.tar.gz
+          overwrite: true
+          tag: ${{ github.ref }}
+
   bb_wrapper:
     runs-on: ubuntu-22.04
 
@@ -60,3 +74,4 @@ jobs:
           rm flake.lock
           nix build -L
           ./result/bin/barretenberg_wrapper
+

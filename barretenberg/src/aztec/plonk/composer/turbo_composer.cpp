@@ -951,6 +951,7 @@ std::shared_ptr<verification_key> TurboComposer::compute_verification_key()
 
     circuit_verification_key =
         turbo_composer::compute_verification_key(circuit_proving_key, crs_factory_->get_verifier_crs());
+
     circuit_verification_key->composer_type = type;
     circuit_verification_key->recursive_proof_public_input_indices =
         std::vector<uint32_t>(recursive_proof_public_input_indices.begin(), recursive_proof_public_input_indices.end());

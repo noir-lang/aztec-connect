@@ -66,3 +66,62 @@ pub unsafe fn verify(
         proof.len() as u32,
     )
 }
+
+/// # Safety
+/// cs_prt must point to a valid constraints system structure of type standard_format
+pub unsafe fn init_proving_key(cs_ptr: &[u8], pk_data_ptr: *mut *mut u8) -> u64 {
+    let cs_ptr = cs_ptr.as_ptr() as *const u8;
+    c_init_proving_key(cs_ptr, pk_data_ptr as *const *mut u8 as *mut *const u8)
+}
+
+/// # Safety
+/// pippenger must point to a valid Pippenger object
+pub unsafe fn init_verification_key(
+    pippenger: *mut ::std::os::raw::c_void,
+    g2_ptr: &[u8],
+    pk_ptr: &[u8],
+    vk_data_ptr: *mut *mut u8,
+) -> u64 {
+    c_init_verification_key(
+        pippenger,
+        g2_ptr.as_ptr() as *const u8,
+        pk_ptr.as_ptr() as *const u8,
+        vk_data_ptr as *const *mut u8 as *mut *const u8,
+    )
+}
+
+/// # Safety
+/// pippenger must point to a valid Pippenger object
+pub unsafe fn create_proof_with_pk(
+    pippenger: *mut ::std::os::raw::c_void,
+    g2_ptr: &[u8],
+    pk_ptr: &[u8],
+    cs_ptr: &[u8],
+    witness_ptr: &[u8],
+    proof_data_ptr: *mut *mut u8,
+) -> u64 {
+    let cs_ptr = cs_ptr.as_ptr() as *const u8;
+    let pk_ptr = pk_ptr.as_ptr() as *const u8;
+    c_new_proof(
+        pippenger,
+        g2_ptr.as_ptr() as *const u8,
+        pk_ptr,
+        cs_ptr,
+        witness_ptr.as_ptr() as *const u8,
+        proof_data_ptr as *const *mut u8 as *mut *mut u8,
+    )
+}
+
+/// # Safety
+/// cs_prt must point to a valid constraints system structure of type standard_format
+pub unsafe fn verify_with_vk(g2_ptr: &[u8], vk_ptr: &[u8], cs_ptr: &[u8], proof: &[u8]) -> bool {
+    let proof_ptr = proof.as_ptr() as *const u8;
+
+    c_verify_proof(
+        g2_ptr.as_ptr() as *const u8,
+        vk_ptr.as_ptr() as *const u8,
+        cs_ptr.as_ptr() as *const u8,
+        proof_ptr as *mut u8,
+        proof.len() as u32,
+    )
+}

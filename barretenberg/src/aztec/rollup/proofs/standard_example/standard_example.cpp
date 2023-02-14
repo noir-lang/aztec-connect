@@ -212,6 +212,8 @@ size_t c_init_verification_key(void* pippenger, uint8_t const* g2x, uint8_t cons
     auto verification_key =
         waffle::turbo_composer::compute_verification_key(proving_key, crs_factory->get_verifier_crs());
 
+    // The composer_type has not yet been set. We need to set the composer_type for when we later read in and
+    // construct the verification key so that we have the correct polynomial manifest
     verification_key->composer_type = waffle::ComposerType::TURBO;
 
     auto buffer = to_buffer(*verification_key);

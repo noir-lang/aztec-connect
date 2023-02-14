@@ -268,7 +268,8 @@ bool c_verify_proof(
         read(vk_buf, vk_data);
         auto verification_key = std::make_shared<waffle::verification_key>(std::move(vk_data), crs);
 
-        auto composer = create_circuit(constraint_system, nullptr, verification_key);
+        waffle::TurboComposer composer(nullptr, verification_key);
+        create_circuit(composer, constraint_system);
         waffle::plonk_proof pp = { std::vector<uint8_t>(proof, proof + length) };
 
         auto verifier = composer.create_verifier();

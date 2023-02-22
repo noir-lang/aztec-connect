@@ -49,13 +49,11 @@ void read_witness(TurboComposer& composer, std::vector<barretenberg::fr> witness
     }
 }
 
-TurboComposer create_circuit(const standard_format& constraint_system)
+void create_circuit(TurboComposer& composer, const standard_format& constraint_system)
 {
     if (constraint_system.public_inputs.size() > constraint_system.varnum) {
         std::cout << "too many public inputs!" << std::endl;
     }
-
-    auto composer = TurboComposer();
 
     for (size_t i = 1; i < constraint_system.varnum; ++i) {
         // If the index is in the public inputs vector, then we add it as a public input
@@ -129,8 +127,6 @@ TurboComposer create_circuit(const standard_format& constraint_system)
     for (const auto& constraint : constraint_system.hash_to_field_constraints) {
         create_hash_to_field_constraints(composer, constraint);
     }
-
-    return composer;
 }
 
 TurboComposer create_circuit(const standard_format& constraint_system,

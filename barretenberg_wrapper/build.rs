@@ -15,7 +15,7 @@ pub enum Arch {
 const INTEL_APPLE: &str = "x86_64-apple-clang";
 const INTEL_LINUX: &str = "x86_64-linux-clang";
 const ARM_APPLE: &str = "arm-apple-clang";
-const ARM_LINUX: &str = "arm64-linux-gcc";
+const ARM_LINUX: &str = "aarch64-linux-clang";
 
 fn select_toolchain() -> &'static str {
     let arch = select_arch();
@@ -62,15 +62,7 @@ fn set_brew_env_var(toolchain: &'static str) {
     // The cmake file for macos uses an environment variable
     // to figure out where to find certain programs installed via brew
     if toolchain == INTEL_APPLE || toolchain == ARM_APPLE {
-        let output = std::process::Command::new("brew")
-            .arg("--prefix")
-            .stdout(std::process::Stdio::piped())
-            .output()
-            .expect("Failed to execute command to run `brew --prefix` is brew installed?");
-
-        let stdout = String::from_utf8(output.stdout).unwrap();
-
-        env::set_var("BREW_PREFIX", stdout.trim());
+        env::set_var("BREW_PREFIX", find_brew_prefix());
     }
 }
 
@@ -93,6 +85,9 @@ fn main() {
         .cxxflag("-fPIE")
         .env("NUM_JOBS", num_cpus::get().to_string())
         .define("TOOLCHAIN", toolchain)
+        .define("TESTING", "OFF")
+        .define("DISABLE_ASM", "ON")
+        .define("DISABLE_ADX", "ON")
         .always_configure(false)
         .build();
 
@@ -221,21 +216,23 @@ fn link_lib_omp(toolchain: &'static str) {
     match toolchain {
         INTEL_LINUX | ARM_LINUX => {
             let llvm_dir = find_llvm_linux_path();
-            println!("cargo:rustc-link-search={}/lib", llvm_dir)
+            println!("cargo:rustc-link-search={llvm_dir}/lib")
         }
-        INTEL_APPLE => println!("cargo:rustc-link-search=/usr/local/lib"),
-        ARM_APPLE => println!("cargo:rustc-link-search=/opt/homebrew/lib"),
-        &_ => unimplemented!("lomp linking of {} is not supported", toolchain),
+        INTEL_APPLE => {
+            let brew_prefix = find_brew_prefix();
+            println!("cargo:rustc-link-search={brew_prefix}/opt/libomp/lib")
+        }
+        ARM_APPLE => {
+            let brew_prefix = find_brew_prefix();
+            println!("cargo:rustc-link-search={brew_prefix}/opt/libomp/lib")
+        }
+        &_ => unimplemented!("lomp linking of {toolchain} is not supported"),
     }
     match toolchain {
-        ARM_LINUX => {
-            // only arm linux uses gcc
-            println!("cargo:rustc-link-lib=gomp")   
-        }
-        INTEL_APPLE | ARM_APPLE => {
+        ARM_LINUX | INTEL_APPLE | ARM_APPLE => {
             println!("cargo:rustc-link-lib=omp")
         }
-        &_ => println!("cargo:rustc-link-lib=omp5")
+        &_ => println!("cargo:rustc-link-lib=omp5"),
     }
 }
 
@@ -252,4 +249,16 @@ fn find_llvm_linux_path() -> String {
     // This should be the path to llvm
     let path_to_llvm = String::from_utf8(output.stdout).unwrap();
     path_to_llvm.trim().to_owned()
+}
+
+fn find_brew_prefix() -> String {
+    let output = std::process::Command::new("brew")
+        .arg("--prefix")
+        .stdout(std::process::Stdio::piped())
+        .output()
+        .expect("Failed to execute command to run `brew --prefix` is brew installed?");
+
+    let stdout = String::from_utf8(output.stdout).unwrap();
+
+    stdout.trim().to_string()
 }

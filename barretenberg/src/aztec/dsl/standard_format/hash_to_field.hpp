@@ -51,8 +51,9 @@ void create_hash_to_field_constraints(waffle::TurboComposer& composer, const Has
 
         field_ct element = field_ct::from_witness_index(&composer, witness_index);
         byte_array_ct element_bytes(element, num_bytes);
+        byte_array_ct reversed_bytes = element_bytes.reverse();
 
-        arr.write(element_bytes);
+        arr.write(reversed_bytes);
     }
 
     // Hash To Field using blake2s.

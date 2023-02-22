@@ -25,6 +25,7 @@ cd ./srs_db
 cd ..
 
 # Pick native toolchain file.
+ARCH=$(uname -m)
 if [ "$OS" == "macos" ]; then
     export BREW_PREFIX=$(brew --prefix)
     # Ensure we have toolchain.
@@ -32,19 +33,22 @@ if [ "$OS" == "macos" ]; then
         echo "Default clang not sufficient. Install homebrew, and then: brew install llvm libomp clang-format"
         exit 1
     fi
-    ARCH=$(uname -m)
     if [ "$ARCH" = "arm64" ]; then
         TOOLCHAIN=arm-apple-clang
     else
         TOOLCHAIN=x86_64-apple-clang
     fi
 else
-    TOOLCHAIN=x86_64-linux-clang
+    if [ "$ARCH" = "aarch64" ]; then
+        TOOLCHAIN=aarch64-linux-clang
+    else
+        TOOLCHAIN=x86_64-linux-clang
+    fi
 fi
 
 # Build native.
 mkdir -p build && cd build
-cmake -DCMAKE_BUILD_TYPE=RelWithAssert -DTOOLCHAIN=$TOOLCHAIN ..
+cmake -DCMAKE_BUILD_TYPE=RelWithAssert -DTOOLCHAIN=$TOOLCHAIN -DTESTING=OFF ..
 cmake --build . --parallel
 cd ..
 
@@ -56,6 +60,6 @@ cd ..
 
 # Build WASM.
 mkdir -p build-wasm && cd build-wasm
-cmake -DTOOLCHAIN=wasm-linux-clang ..
+cmake -DTOOLCHAIN=wasm-linux-clang -DTESTING=OFF ..
 cmake --build . --parallel --target barretenberg.wasm
 cd ..

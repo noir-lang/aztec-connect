@@ -10,7 +10,7 @@ pub fn fixed_base(input: &[u8; 32]) -> ([u8; 32], [u8; 32]) {
 pub fn construct_public_key(private_key: &[u8; 32]) -> [u8; 64] {
     let mut result = [0_u8; 64];
     unsafe {
-        let data = private_key.as_ptr() as *const u8;
+        let data = private_key.as_ptr();
         compute_public_key(data, result.as_mut_ptr());
     }
     result
@@ -21,9 +21,9 @@ pub fn construct_signature(message: &[u8], private_key: [u8; 32]) -> ([u8; 32], 
     let mut e = [0_u8; 32];
     unsafe {
         crate::construct_signature(
-            message.as_ptr() as *const u8,
-            message.len() as u64,
-            private_key.as_ptr() as *const u8,
+            message.as_ptr(),
+            message.len(),
+            private_key.as_ptr(),
             s.as_mut_ptr(),
             e.as_mut_ptr(),
         );
@@ -42,11 +42,11 @@ pub fn verify_signature(
     let r;
     unsafe {
         r = crate::verify_signature(
-            message.as_ptr() as *const u8,
-            message.len() as u64,
-            pub_key.as_ptr() as *const u8,
-            sig_s.as_ptr() as *const u8,
-            sig_e.as_ptr() as *const u8,
+            message.as_ptr(),
+            message.len(),
+            pub_key.as_ptr(),
+            sig_s.as_ptr(),
+            sig_e.as_ptr(),
         );
     }
     r

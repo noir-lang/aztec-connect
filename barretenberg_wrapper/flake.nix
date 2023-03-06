@@ -49,9 +49,9 @@
 
           doCheck = false;
 
-          # Bindgen needs these
-          # BINDGEN_EXTRA_CLANG_ARGS = "-L${pkgs.barretenberg}";
-          RUSTFLAGS = "-L${pkgs.barretenberg}/lib -lomp";
+          nativeBuildInputs = [
+            pkgs.pkg-config
+          ];
 
           buildInputs = [
             pkgs.llvmPackages.openmp
@@ -68,14 +68,8 @@
         devShells.default = pkgs.mkShell {
           inputsFrom = builtins.attrValues self.checks;
 
-          buildInputs = packages.default.buildInputs ;
-
-          # BINDGEN_EXTRA_CLANG_ARGS = "-I${pkgs.barretenberg}/include/aztec -L${pkgs.barretenberg}";
-          RUSTFLAGS = "-L${pkgs.barretenberg}/lib -lomp";
-
-          nativeBuildInputs = with pkgs; [
-            cargo
-            rustc ];
+          buildInputs = packages.default.buildInputs;
+          nativeBuildInputs = packages.default.nativeBuildInputs;
         };
       });
 }

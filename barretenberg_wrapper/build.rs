@@ -18,23 +18,24 @@ fn select_os() -> OS {
         }
     }
 }
-fn select_cpp_stdlib() -> &'static str {
-    // The name of the c++ stdlib depends on the OS
-    match select_os() {
-        OS::Linux => "stdc++",
-        OS::Apple => "c++",
-    }
-}
+
+// Useful for printing debugging messages during the build
+// macro_rules! p {
+//     ($($tokens: tt)*) => {
+//         println!("cargo:warning={}", format!($($tokens)*))
+//     }
+// }
 
 fn main() {
-    // Manually link all of the libraries
+    let os = select_os();
 
-    // Link C++ std lib
-    println!("cargo:rustc-link-lib={}", select_cpp_stdlib());
-    println!("cargo:rustc-link-lib={}", "omp");
-    // NEEDED FOR NON NIX BUILDS
-    // println!("cargo:rustc-link-search=/usr/local/lib");
-    // println!("cargo:rustc-link-search=/Users/phated/brew/opt/llvm/lib");
+    link_cpp_stdlib(&os);
+    link_lib_omp(&os);
+
+    pkg_config::Config::new()
+        .range_version("0.1.0".."0.2.0")
+        .probe("barretenberg")
+        .unwrap();
 
     // Generate bindings from a header file and place them in a bindings.rs file
     let bindings = bindgen::Builder::default()
@@ -43,11 +44,11 @@ fn main() {
         .header_contents(
             "wrapper.h",
             r#"
-            #include <aztec/dsl/turbo_proofs/c_bind.hpp>
-            #include <aztec/crypto/blake2s/c_bind.hpp>
-            #include <aztec/crypto/pedersen/c_bind.hpp>
-            #include <aztec/crypto/schnorr/c_bind.hpp>
-            #include <aztec/ecc/curves/bn254/scalar_multiplication/c_bind.hpp>
+            #include <barretenberg/dsl/turbo_proofs/c_bind.hpp>
+            #include <barretenberg/crypto/blake2s/c_bind.hpp>
+            #include <barretenberg/crypto/pedersen/c_bind.hpp>
+            #include <barretenberg/crypto/schnorr/c_bind.hpp>
+            #include <barretenberg/ecc/curves/bn254/scalar_multiplication/c_bind.hpp>
             "#,
         )
         .allowlist_function("blake2s_to_field")
@@ -72,4 +73,58 @@ fn main() {
     bindings
         .write_to_file(out_path.join("bindings.rs"))
         .expect("Couldn't write bindings");
+}
+
+fn link_cpp_stdlib(os: &OS) {
+    // The name of the c++ stdlib depends on the OS
+    match os {
+        OS::Linux => println!("cargo:rustc-link-lib=stdc++"),
+        OS::Apple => println!("cargo:rustc-link-lib=c++"),
+    }
+}
+
+fn link_lib_omp(os: &OS) {
+    // We are using clang, so we need to tell the linker where to search for lomp
+    match os {
+        OS::Linux => {
+            let llvm_dir = find_llvm_linux_path();
+            println!("cargo:rustc-link-search={llvm_dir}/lib")
+        }
+        OS::Apple => {
+            if let Some(brew_prefix) = find_brew_prefix() {
+                println!("cargo:rustc-link-search={brew_prefix}/opt/libomp/lib")
+            }
+        }
+    }
+    println!("cargo:rustc-link-lib=omp");
+}
+
+fn find_llvm_linux_path() -> String {
+    // Most linux systems will have the `find` application
+    //
+    // This assumes that there is a single llvm-X folder in /usr/lib
+    let output = std::process::Command::new("sh")
+        .arg("-c")
+        .arg("find /usr/lib -type d -name \"*llvm-*\" -print -quit")
+        .stdout(std::process::Stdio::piped())
+        .output()
+        .expect("Failed to execute command to run `find`");
+    // This should be the path to llvm
+    let path_to_llvm = String::from_utf8(output.stdout).unwrap();
+    path_to_llvm.trim().to_owned()
+}
+
+fn find_brew_prefix() -> Option<String> {
+    let output = std::process::Command::new("brew")
+        .arg("--prefix")
+        .stdout(std::process::Stdio::piped())
+        .output();
+
+    match output {
+        Ok(output) => match String::from_utf8(output.stdout) {
+            Ok(stdout) => Some(stdout.trim().to_string()),
+            Err(_) => None,
+        },
+        Err(_) => None,
+    }
 }

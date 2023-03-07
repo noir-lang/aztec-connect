@@ -7,8 +7,7 @@ pub enum OS {
 }
 
 fn select_os() -> OS {
-    let os = std::env::consts::OS;
-    match os {
+    match env::consts::OS {
         "linux" => OS::Linux,
         "macos" => OS::Apple,
         "windows" => unimplemented!("windows is not supported"),

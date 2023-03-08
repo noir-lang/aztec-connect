@@ -55,6 +55,9 @@
             pkgs.llvmPackages.bintools
           ];
 
+          # rust-bindgen needs to know the location of libclang
+          LIBCLANG_PATH = "${pkgs.llvmPackages.libclang.lib}/lib";
+
           buildInputs = [
             pkgs.llvmPackages.openmp
             pkgs.barretenberg

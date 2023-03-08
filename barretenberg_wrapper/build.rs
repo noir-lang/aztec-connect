@@ -39,9 +39,9 @@ fn main() {
     // Generate bindings from a header file and place them in a bindings.rs file
     let bindings = bindgen::Builder::default()
         // Clang args so that we can use relative include paths
-        .clang_args(&["-std=c++20", "-xc++"])
+        .clang_args(&["-std=gnu++20", "-xc++"])
         .header_contents(
-            "wrapper.h",
+            "wrapper.hpp",
             r#"
             #include <barretenberg/dsl/turbo_proofs/c_bind.hpp>
             #include <barretenberg/crypto/blake2s/c_bind.hpp>

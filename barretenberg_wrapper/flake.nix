@@ -41,7 +41,7 @@
         };
 
         craneLib = (crane.mkLib pkgs).overrideScope' (final: prev: {
-          stdenv = pkgs.llvmPackages.stdenv;
+          stdenv = with pkgs; overrideCC llvmPackages.stdenv (llvmPackages.clang.override { gccForLibs = gcc11.cc; });
         });
 
         barretenberg-rs = craneLib.buildPackage {
@@ -51,6 +51,7 @@
 
           nativeBuildInputs = [
             pkgs.pkg-config
+            pkgs.llvmPackages.bintools
           ];
 
           buildInputs = [

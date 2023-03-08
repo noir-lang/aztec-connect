@@ -41,6 +41,7 @@
         };
 
         craneLib = (crane.mkLib pkgs).overrideScope' (final: prev: {
+          # As per https://discourse.nixos.org/t/gcc11stdenv-and-clang/17734/7
           stdenv = with pkgs; overrideCC llvmPackages.stdenv (llvmPackages.clang.override { gccForLibs = gcc11.cc; });
         });
 

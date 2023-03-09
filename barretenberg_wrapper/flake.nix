@@ -2,7 +2,7 @@
   description = "Build Barretenberg wrapper";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
 
     crane = {
       url = "github:ipetkov/crane";
@@ -20,7 +20,7 @@
     };
 
     barretenberg = {
-      url = "github:AztecProtocol/barretenberg/phated/nix-acir-format";
+      url = "github:AztecProtocol/barretenberg/phated/nix";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         flake-utils.follows = "flake-utils";

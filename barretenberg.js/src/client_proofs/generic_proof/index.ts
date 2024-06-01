@@ -15,6 +15,7 @@ import { StandardExampleVerifier } from './standard_example_verifier';
 export * from './standard_example_prover';
 export * from './standard_example_verifier';
 
+
 // Takes in a structure representing ACIR which we get from
 // wasm version of the noir compiler
 //
@@ -26,6 +27,7 @@ export * from './standard_example_verifier';
 // Note this byte array would be analogous to the `tx` structures
 // in the other client proofs
 export async function setup_generic_prover_and_verifier(acir: any) {
+  
   const serialised_circuit = serialise_acir_to_barrtenberg_circuit(acir);
 
   const barretenberg = await BarretenbergWasm.new();

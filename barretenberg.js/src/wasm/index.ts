@@ -1,5 +1,5 @@
 import { readFile } from 'fs';
-import isNode from 'detect-node';
+import { isNode } from '../isNode';
 import { promisify } from 'util';
 import { EventEmitter } from 'events';
 
@@ -14,7 +14,12 @@ export async function fetchCode() {
   if (isNode) {
     return await promisify(readFile)(__dirname + '/barretenberg.wasm');
   } else {
-    const res = await fetch('/barretenberg.wasm');
+    ///@ts-ignore
+    const res = await fetch(new URL("barretenberg.wasm", import.meta.url));
+    if (!res.ok) {
+      ///@ts-ignore
+      throw new Error(`Could not get URL '${new URL("barretenberg.wasm", import.meta.url)}'`);
+    }
     return Buffer.from(await res.arrayBuffer());
   }
 }

@@ -1,5 +1,5 @@
 import { readFile } from 'fs';
-import isNode from 'detect-node';
+import { isNode } from '../isNode';
 import { promisify } from 'util';
 import { EventEmitter } from 'events';
 import { createDebugLogger } from '../log';
@@ -12,7 +12,13 @@ export async function fetchCode() {
   if (isNode) {
     return await promisify(readFile)(__dirname + '/barretenberg.wasm');
   } else {
-    const res = await fetch('/barretenberg.wasm');
+    ///@ts-ignore
+
+    const res = await fetch(new URL("barretenberg.wasm", import.meta.url));
+    if (!res.ok) {
+      ///@ts-ignore
+      throw new Error(`Could not get URL '${new URL("barretenberg.wasm", import.meta.url)}'`);
+    }
     return Buffer.from(await res.arrayBuffer());
   }
 }
@@ -44,17 +50,17 @@ export class BarretenbergWasm extends EventEmitter {
     const importObj = {
       /* eslint-disable camelcase */
       wasi_snapshot_preview1: {
-        environ_get: () => {},
-        environ_sizes_get: () => {},
-        fd_close: () => {},
-        fd_read: () => {},
-        fd_write: () => {},
-        fd_seek: () => {},
-        fd_fdstat_get: () => {},
-        fd_fdstat_set_flags: () => {},
-        path_open: () => {},
-        path_filestat_get: () => {},
-        proc_exit: () => {},
+        environ_get: () => { },
+        environ_sizes_get: () => { },
+        fd_close: () => { },
+        fd_read: () => { },
+        fd_write: () => { },
+        fd_seek: () => { },
+        fd_fdstat_get: () => { },
+        fd_fdstat_set_flags: () => { },
+        path_open: () => { },
+        path_filestat_get: () => { },
+        proc_exit: () => { },
         random_get: (arr, length) => {
           arr = arr >>> 0;
           const heap = new Uint8Array(this.memory.buffer);
